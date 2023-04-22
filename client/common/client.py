@@ -1,5 +1,8 @@
 import socket
-from common.csv_parser import CsvParser
+from common.file_sender import file_sender
+from common.protocol import send_string
+import logging
+
 class Client:
     def __init__(self, port, ip):
         self.port = port
@@ -12,7 +15,12 @@ class Client:
 
     def run(self):
         self.connect()
-        csv = CsvParser("/data/montreal/stations.csv")
-        self.sock.send("{}\n".format(csv.get_line_json()).encode('utf-8'))
-        msg = self.sock.recv(1024).rstrip().decode('utf-8')
-        print(msg)
+        #TODO: move to configuration
+        file_list = ["/data/montreal/stations.csv"]
+        for file in file_list:
+            file_sender(self.sock, file)
+        logging.info(f"ALL FILES SENT")
+        send_string(self.sock, "eof")
+        #TODO: close socket
+
+

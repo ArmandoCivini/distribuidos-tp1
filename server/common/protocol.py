@@ -1,3 +1,6 @@
+import json
+import logging
+
 def long_read(skt, n):
     #avoids short read
     message = []
@@ -20,4 +23,19 @@ def write_int32(skt, int):
 
 def read_string(skt):
     len = read_int32(skt)
-    return long_read(skt, len)
+    return bytearray(long_read(skt, len)).decode('utf-8')
+
+def send_string(skt, string):
+    length = len(string)
+    write_int32(skt, length)
+    long_write(skt, string.encode('utf-8'))
+
+def read_json(skt):
+    msg = read_string(skt)
+    if msg == "eof":
+        logging.info(f"END OF FILE")
+        return None, "finished"
+    if msg == "error":
+        logging.info(f"ERROR")
+        return None, "error"
+    return json.loads(msg), None

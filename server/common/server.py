@@ -1,6 +1,6 @@
 import socket
 import logging
-
+from common.data_receiver import data_receiver
 
 class Server:
     def __init__(self, port, listen_backlog):
@@ -17,12 +17,8 @@ class Server:
 
     def __handle_client_connection(self, client_sock):
         try:
-            # TODO: Modify the receive to avoid short-reads
-            msg = client_sock.recv(1024).rstrip().decode('utf-8')
-            addr = client_sock.getpeername()
-            logging.info(f'action: receive_message | result: success | ip: {addr[0]} | msg: {msg}')
-            # TODO: Modify the send to avoid short-writes
-            client_sock.send("{}\n".format(msg).encode('utf-8'))
+            error = data_receiver(client_sock)
+            logging.info(f"{error}")
         except OSError as e:
             logging.error("action: receive_message | result: fail | error: {e}")
         finally:

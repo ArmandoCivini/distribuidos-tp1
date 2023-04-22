@@ -19,6 +19,6 @@ def write_int32(skt, int):
     long_write(skt, int.to_bytes(4, byteorder='big', signed=True))
 
 def send_string(skt, string):
-    len = len(string)
-    write_int32(skt, len)
-    long_write(skt, string)
+    length = len(string)
+    write_int32(skt, length)
+    long_write(skt, string.encode('utf-8'))
