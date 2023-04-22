@@ -2,6 +2,13 @@ version: '3.9'
 name: tp0
 services:
 
+  rabbitmq:
+    build:
+      context: ./rabbitmq
+      dockerfile: rabbitmq.dockerfile
+    ports:
+      - 15672:15672
+      
   server:
     container_name: server
     image: server:latest
@@ -11,8 +18,24 @@ services:
       - LOGGING_LEVEL=DEBUG
     networks:
       - testing_net
+    depends_on:
+      - rabbitmq
+    links: 
+      - rabbitmq
     volumes:
       - ./server/config.ini:/config.ini
+
+  worker1:
+  build:
+    context: ./worker
+    dockerfile: worker.dockerfile
+  depends_on:
+    - rabbitmq
+  links: 
+    - rabbitmq
+  environment:
+    - PYTHONUNBUFFERED=1
+    - WORKER_ID=1
 
   client:
     container_name: client
