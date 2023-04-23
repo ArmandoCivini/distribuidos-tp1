@@ -13,3 +13,5 @@ class CsvParser:
             return None
         line.update(self.extra_fields)
         return json.dumps(line)
+    
+    #TODO: destroy function
