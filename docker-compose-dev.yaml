@@ -1,17 +1,6 @@
 version: '3.9'
 name: tp1
 services:
-
-  rabbitmq:
-    container_name: rabbitmq
-    build:
-      context: ./rabbitmq
-      dockerfile: rabbitmq.dockerfile
-    networks:
-      - testing_net
-    ports:
-      - '5672:5672'
-      - '15672:15672'
       
   server:
     container_name: server
@@ -21,9 +10,7 @@ services:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=INFO
     networks:
-      - testing_net
-    depends_on:
-      - rabbitmq
+      - infra_testing_net
     volumes:
       - ./server/config.ini:/config.ini
 
@@ -34,7 +21,7 @@ services:
     depends_on:
       - server
     networks:
-      - testing_net
+      - infra_testing_net
     environment:
       - PYTHONUNBUFFERED=1
       - WORKER_ID=1
@@ -48,7 +35,7 @@ services:
       - PYTHONUNBUFFERED=1
       - LOGGING_LEVEL=DEBUG
     networks:
-      - testing_net
+      - infra_testing_net
     depends_on:
       - server
     volumes:
@@ -56,8 +43,5 @@ services:
       - ./data/:/data
 
 networks:
-  testing_net:
-    ipam:
-      driver: default
-      config:
-        - subnet: 172.25.125.0/24
+  infra_testing_net:
+    external: true

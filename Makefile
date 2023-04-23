@@ -27,6 +27,19 @@ docker-compose-logs:
 	docker compose -f docker-compose-dev.yaml logs -f
 .PHONY: docker-compose-logs
 
-docker-network-down:
+docker-network-nuke:
 	docker network rm $(docker network ls -q)
+.PHONY: docker-network-nuke
+
+docker-network-up:
+	docker compose -f docker-compose-infra.yaml up -d --build
+.PHONY: docker-network-up
+
+docker-network-down:
+	docker compose -f docker-compose-infra.yaml stop -t 1
+	docker compose -f docker-compose-infra.yaml down
 .PHONY: docker-network-down
+
+docker-network-logs:
+	docker compose -f docker-compose-infra.yaml logs -f
+.PHONY: docker-network-logs
