@@ -5,7 +5,7 @@ def get_metadata(file):
     data = file.split("/")
     city = data[-2]
     type = data[-1].split(".")[0]
-    meta_data = {"city":type, "type":city}
+    meta_data = {"city":city, "type":type}
     return meta_data
 
 def file_sender(skt, file):

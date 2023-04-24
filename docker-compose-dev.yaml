@@ -25,7 +25,20 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - WORKER_ID=1
-      - LOGGING_LEVEL=DEBUG
+      - LOGGING_LEVEL=INFO
+
+  worker2:
+    container_name: worker2
+    image: worker:latest
+    entrypoint: python3 /main.py
+    depends_on:
+      - server
+    networks:
+      - infra_testing_net
+    environment:
+      - PYTHONUNBUFFERED=1
+      - WORKER_ID=1
+      - LOGGING_LEVEL=INFO
 
   client:
     container_name: client

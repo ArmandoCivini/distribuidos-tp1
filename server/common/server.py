@@ -18,7 +18,7 @@ class Server:
     def __handle_client_connection(self, client_sock):
         try:
             error = data_receiver(client_sock)
-            logging.info(f"{error}")
+            if error: logging.info(f"{error}")
         except OSError as e:
             logging.error("action: receive_message | result: fail | error: {e}")
         finally:

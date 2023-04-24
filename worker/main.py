@@ -54,10 +54,14 @@ def main():
     consumer_id = os.environ["WORKER_ID"]
     connection = pika.BlockingConnection(
         pika.ConnectionParameters(host='rabbitmq'))
-
     channel = connection.channel()
 
-    channel.queue_declare(queue='task_queue', durable=True)
+    channel.exchange_declare(exchange='weather_stations_queue', exchange_type='fanout') #TODO: add variables to configuration
+
+    result = channel.queue_declare(queue='', exclusive=True)
+    queue_name = result.method.queue
+
+    channel.queue_bind(exchange='weather_stations_queue', queue=queue_name)
     logging.info('[{}] Waiting for messages. To exit press CTRL+C'.format(consumer_id))
 
 
@@ -66,7 +70,7 @@ def main():
         ch.basic_ack(delivery_tag=method.delivery_tag)
 
     channel.basic_qos(prefetch_count=1)
-    channel.basic_consume(queue='task_queue', on_message_callback=callback)
+    channel.basic_consume(queue=queue_name, on_message_callback=callback)
 
     channel.start_consuming()
 
