@@ -51,17 +51,20 @@ def main():
     initialize_log(logging_level)
 
     logging.info('started worker')
+    weather_exchange = 'weather_exchange'
+    stations_exchange = 'stations_exchange'
+    trips_exchange = 'trips_exchange'
     consumer_id = os.environ["WORKER_ID"]
     connection = pika.BlockingConnection(
         pika.ConnectionParameters(host='rabbitmq'))
     channel = connection.channel()
 
-    channel.exchange_declare(exchange='weather_stations_queue', exchange_type='fanout') #TODO: add variables to configuration
+    channel.exchange_declare(exchange=stations_exchange, exchange_type='fanout') #TODO: add variables to configuration
 
     result = channel.queue_declare(queue='', exclusive=True)
     queue_name = result.method.queue
 
-    channel.queue_bind(exchange='weather_stations_queue', queue=queue_name)
+    channel.queue_bind(exchange=stations_exchange, queue=queue_name)
     logging.info('[{}] Waiting for messages. To exit press CTRL+C'.format(consumer_id))
 
 
