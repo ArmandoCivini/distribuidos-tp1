@@ -4,7 +4,7 @@ import time
 import os
 import logging
 from configparser import ConfigParser
-
+from common.stations import Stations
 
 def initialize_config():
     """ Parse env variables or config file to find program config params
@@ -52,30 +52,11 @@ def main():
 
     logging.info('started worker')
     weather_exchange = 'weather_exchange'
-    stations_exchange = 'stations_exchange'
     trips_exchange = 'trips_exchange'
     consumer_id = os.environ["WORKER_ID"]
-    connection = pika.BlockingConnection(
-        pika.ConnectionParameters(host='rabbitmq'))
-    channel = connection.channel()
-
-    channel.exchange_declare(exchange=stations_exchange, exchange_type='fanout') #TODO: add variables to configuration
-
-    result = channel.queue_declare(queue='', exclusive=True)
-    queue_name = result.method.queue
-
-    channel.queue_bind(exchange=stations_exchange, queue=queue_name)
-    logging.info('[{}] Waiting for messages. To exit press CTRL+C'.format(consumer_id))
-
-
-    def callback(ch, method, properties, body):
-        logging.info("[{}] Received {}".format(consumer_id, body))
-        ch.basic_ack(delivery_tag=method.delivery_tag)
-
-    channel.basic_qos(prefetch_count=1)
-    channel.basic_consume(queue=queue_name, on_message_callback=callback)
-
-    channel.start_consuming()
+    stations = Stations(consumer_id)
+    stations.run()
+    
 
 if __name__ == "__main__":
     main()
