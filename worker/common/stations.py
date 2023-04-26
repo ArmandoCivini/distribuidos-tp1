@@ -6,7 +6,15 @@ class Stations:
     def __init__(self, consumer_id):
         self.stations_exchange = 'stations_exchange'
         self.consumer_id = consumer_id
-        self.stations = {}
+        self.keys = ['code', 'name', 'latitude', 'longitude'] #TODO: add to configuration
+        self.stations_montreal = self.add_keys(self.keys)
+        self.stations_wt = self.add_keys(self.keys)
+
+    def add_keys(self, keys):
+        _dict = {}
+        for key in keys:
+            _dict[key] = []
+        return _dict
 
     def run(self):
         self.get_stations()
@@ -28,13 +36,25 @@ class Stations:
         channel.basic_consume(queue=queue_name, on_message_callback=lambda ch, method, properties, body: self.callback(ch, method, body))
 
         channel.start_consuming()
-        logging.info("finished consuming")
+        logging.info(f"finished consuming stations")
 
     def callback(self, ch, method, body):
+        if body.decode("utf-8")  == 'end':
+            logging.info('received end for stations')
+            ch.basic_ack(delivery_tag=method.delivery_tag)
+            ch.stop_consuming()
+            return
         logging.info("[{}] Received {}".format(self.consumer_id, body))
-        station = json.loads(body)
-        for column in station.keys():
-            if column not in self.stations:
-                self.stations[column] = []
-            self.stations[column].append(station[column])
+        try:
+            station = json.loads(body)
+        except:
+            logging.error("failed to parse json: %s", body)
+            ch.basic_ack(delivery_tag=method.delivery_tag)
+            return
+
+        for column in self.keys:
+            if station['city'] == 'montreal':
+                self.stations_montreal[column].append(station[column])
+            else:
+                self.stations_wt[column].append(station[column])
         ch.basic_ack(delivery_tag=method.delivery_tag)

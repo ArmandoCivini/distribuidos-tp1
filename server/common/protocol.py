@@ -33,9 +33,9 @@ def send_string(skt, string):
 def read_json(skt):
     msg = read_string(skt)
     if msg == "eof":
-        logging.info(f"END OF FILE")
+        logging.info(f"client finished")
         return None, "finished"
     if msg == "error":
-        logging.info(f"ERROR")
+        logging.error(f"client error")
         return None, "error"
     return json.loads(msg), None

@@ -16,7 +16,7 @@ class Client:
     def run(self):
         self.connect()
         #TODO: move to configuration
-        file_list = ["/data/montreal/stations.csv"]
+        file_list = ["/data/montreal/trips.csv"]
         for file in file_list:
             file_sender(self.sock, file)
         logging.info(f"ALL FILES SENT")

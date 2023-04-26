@@ -5,17 +5,8 @@ import os
 import logging
 from configparser import ConfigParser
 from common.stations import Stations
-
+from common.split import split
 def initialize_config():
-    """ Parse env variables or config file to find program config params
-
-    Function that search and parse program configuration parameters in the
-    program environment variables first and the in a config file. 
-    If at least one of the config parameters is not found a KeyError exception 
-    is thrown. If a parameter could not be parsed, a ValueError is thrown. 
-    If parsing succeeded, the function returns a ConfigParser object 
-    with config parameters
-    """
 
     config = ConfigParser(os.environ)
     # If config.ini does not exists original config object is not modified
@@ -54,8 +45,9 @@ def main():
     weather_exchange = 'weather_exchange'
     trips_exchange = 'trips_exchange'
     consumer_id = os.environ["WORKER_ID"]
-    stations = Stations(consumer_id)
-    stations.run()
+    split()
+    # stations = Stations(consumer_id)
+    # stations.run()
     
 
 if __name__ == "__main__":
