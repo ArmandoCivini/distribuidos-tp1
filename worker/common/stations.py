@@ -1,14 +1,17 @@
 import logging
 import pika
 import json
+import random #TODO: remove
 
 class Stations:
-    def __init__(self, consumer_id):
+    def __init__(self, consumer_id, ended_stations):
         self.stations_exchange = 'stations_exchange'
+        self.stations_queue = 'stations_queue'
         self.consumer_id = consumer_id
         self.keys = ['code', 'name', 'latitude', 'longitude'] #TODO: add to configuration
         self.stations_montreal = self.add_keys(self.keys)
         self.stations_wt = self.add_keys(self.keys)
+        self.ended_stations = ended_stations
 
     def add_keys(self, keys):
         _dict = {}
@@ -27,24 +30,25 @@ class Stations:
 
         channel.exchange_declare(exchange=stations_exchange, exchange_type='fanout') #TODO: add variables to configuration
 
-        result = channel.queue_declare(queue='', exclusive=True)
-        queue_name = result.method.queue
+        result = channel.queue_declare(queue=self.stations_queue)
 
-        channel.queue_bind(exchange=stations_exchange, queue=queue_name)
+        channel.queue_bind(exchange=stations_exchange, queue=self.stations_queue)
 
         channel.basic_qos(prefetch_count=1)
-        channel.basic_consume(queue=queue_name, on_message_callback=lambda ch, method, properties, body: self.callback(ch, method, body))
+        channel.basic_consume(queue=self.stations_queue, on_message_callback=lambda ch, method, properties, body: self.callback(ch, method, body))
 
         channel.start_consuming()
-        logging.info(f"finished consuming stations")
+        logging.info(f"finished consuming stations: {len(self.stations_montreal['code']) + len(self.stations_wt['code'])}")
 
     def callback(self, ch, method, body):
         if body.decode("utf-8")  == 'end':
             logging.info('received end for stations')
             ch.basic_ack(delivery_tag=method.delivery_tag)
+            self.ended_stations.set() #tell split that all stations are ready
             ch.stop_consuming()
             return
-        logging.info("[{}] Received {}".format(self.consumer_id, body))
+        if random.randint(0, 100) < 1000:
+            logging.info("[{}] Received {}".format(self.consumer_id, body))
         try:
             station = json.loads(body)
         except:

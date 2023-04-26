@@ -12,7 +12,8 @@ def callback(ch, method, properties, body):
 
 
 
-def split():
+def split(ended_stations):
+    ended_stations.wait() #wait for stations to be ready
     trips_queue = 'trips_queue'#TODO: add to configuration
     connection = pika.BlockingConnection(
     pika.ConnectionParameters(host='rabbitmq'))

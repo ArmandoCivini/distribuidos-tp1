@@ -35,6 +35,12 @@ def read_json(skt):
     if msg == "eof":
         logging.info(f"client finished")
         return None, "finished"
+    if msg == "end of stations":
+        logging.info(f"client finished sending stations")
+        return None, "end of stations"
+    if msg == "end of weather":
+        logging.info(f"client finished sending weather")
+        return None, "end of weather"
     if msg == "error":
         logging.error(f"client error")
         return None, "error"

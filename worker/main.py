@@ -1,11 +1,9 @@
 #!/usr/bin/env python3
-import pika
-import time
 import os
 import logging
 from configparser import ConfigParser
-from common.stations import Stations
-from common.split import split
+from common.worker import Worker
+
 def initialize_config():
 
     config = ConfigParser(os.environ)
@@ -42,12 +40,11 @@ def main():
     initialize_log(logging_level)
 
     logging.info('started worker')
-    weather_exchange = 'weather_exchange'
-    trips_exchange = 'trips_exchange'
     consumer_id = os.environ["WORKER_ID"]
-    split()
-    # stations = Stations(consumer_id)
-    # stations.run()
+    worker = Worker(consumer_id)
+    worker.run()
+    logging.info('closing worker')
+
     
 
 if __name__ == "__main__":

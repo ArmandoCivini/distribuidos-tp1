@@ -7,20 +7,23 @@ class ColumnFilter:
         self.weather_exchange = 'weather_exchange'
         self.stations_exchange = 'stations_exchange'
         self.trips_exchange = ''
+        self.weather_queue = 'weather_queue'
+        self.stations_queue = 'stations_queue'
         self.trips_queue = 'trips_queue'
         #TODO: add variables to configuration
         logging.info('starting pika')#TODO: remove
         self.connection = pika.BlockingConnection(pika.ConnectionParameters(host='rabbitmq'))
         self.channel = self.connection.channel()
-        self.init_queue(self.weather_exchange, 'fanout')
-        self.init_queue(self.stations_exchange, 'fanout')
+        self.init_queue(self.weather_exchange, 'fanout', self.weather_queue)
+        self.init_queue(self.stations_exchange, 'fanout', self.stations_queue)
         self.init_queue_trips(self.trips_queue)
         
     def init_queue_trips(self, queue):
         self.channel.queue_declare(queue=queue, durable=True)
 
-    def init_queue(self, exchange, type):
+    def init_queue(self, exchange, type, queue):
         self.channel.exchange_declare(exchange=exchange, exchange_type=type)
+        self.channel.queue_declare(queue=queue, auto_delete=False)
     
     def match_type(self, data):
         columns = []
@@ -30,9 +33,11 @@ class ColumnFilter:
         if data['type'] == 'weather':
             columns = ['city', 'date', 'prectot'] #TODO: add to configuration
             exchange = self.weather_exchange
+            routing_key = self.weather_queue
         elif data['type'] == 'stations':
             columns = ['city', 'code', 'name', 'latitude', 'longitude'] #TODO: add to configuration
             exchange = self.stations_exchange
+            routing_key = self.stations_queue
         elif data['type'] == 'trips':
             columns = ['city', 'start_date', 'start_station_code', 'end_station_code', 'duration_sec'] #TODO: add to configuration
             exchange = self.trips_exchange
@@ -64,14 +69,23 @@ class ColumnFilter:
             filtered_data[column] = data[column]
         return filtered_data
     
-    def send_end_stations(self):
-        self.channel.basic_publish(
-        exchange=self.stations_exchange,
-        routing_key='',
+    def send_end(self, channel, exchange, routing_key):
+        channel.basic_publish(
+        exchange=exchange,
+        routing_key=routing_key,
         body='end',
         properties=pika.BasicProperties(
             delivery_mode=pika.spec.PERSISTENT_DELIVERY_MODE,
         ))
+    
+    def send_end_stations(self):
+        self.send_end(self.channel, self.stations_exchange, '')
+    
+    def send_end_weather(self):
+        self.send_end(self.channel, self.weather_exchange, '')
+    
+    def send_end_trips(self):
+        self.send_end(self.channel, self.trips_exchange, self.trips_queue)
 
 
     def __del__(self):
