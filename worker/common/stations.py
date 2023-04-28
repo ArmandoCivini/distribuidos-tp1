@@ -6,7 +6,7 @@ import random #TODO: remove
 class Stations:
     def __init__(self, consumer_id, ended_stations):
         self.stations_exchange = 'stations_exchange'
-        self.stations_queue = 'stations_queue'
+        self.stations_queue = ''
         self.consumer_id = consumer_id
         self.keys = ['code', 'name', 'latitude', 'longitude'] #TODO: add to configuration
         self.stations_montreal = self.add_keys(self.keys)
@@ -28,14 +28,15 @@ class Stations:
         pika.ConnectionParameters(host='rabbitmq'))
         channel = connection.channel()
 
-        channel.exchange_declare(exchange=stations_exchange, exchange_type='fanout') #TODO: add variables to configuration
+        channel.exchange_declare(exchange=stations_exchange, exchange_type='fanout')
 
         result = channel.queue_declare(queue=self.stations_queue)
+        queue_name = result.method.queue
 
-        channel.queue_bind(exchange=stations_exchange, queue=self.stations_queue)
+        channel.queue_bind(exchange=stations_exchange, queue=queue_name)
 
         channel.basic_qos(prefetch_count=1)
-        channel.basic_consume(queue=self.stations_queue, on_message_callback=lambda ch, method, properties, body: self.callback(ch, method, body))
+        channel.basic_consume(queue=queue_name, on_message_callback=lambda ch, method, properties, body: self.callback(ch, method, body))
 
         channel.start_consuming()
         logging.info(f"finished consuming stations: {len(self.stations_montreal['code']) + len(self.stations_wt['code'])}")
@@ -47,7 +48,7 @@ class Stations:
             self.ended_stations.set() #tell split that all stations are ready
             ch.stop_consuming()
             return
-        if random.randint(0, 100) < 1000:
+        if random.randint(0, 100) < 10:
             logging.info("[{}] Received {}".format(self.consumer_id, body))
         try:
             station = json.loads(body)

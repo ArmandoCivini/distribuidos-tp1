@@ -1,14 +1,18 @@
 import logging
 import pika
 import json
+from time import sleep
 
 class ColumnFilter:
     def __init__(self):
+        self.consumer_num = 2
         self.weather_exchange = 'weather_exchange'
         self.stations_exchange = 'stations_exchange'
+        self.notif_exchange = 'notif_exchange'
         self.trips_exchange = ''
-        self.weather_queue = 'weather_queue'
-        self.stations_queue = 'stations_queue'
+        self.weather_queue = ''
+        self.stations_queue = ''
+        self.notif_queue = ''
         self.trips_queue = 'trips_queue'
         #TODO: add variables to configuration
         logging.info('starting pika')#TODO: remove
@@ -16,14 +20,14 @@ class ColumnFilter:
         self.channel = self.connection.channel()
         self.init_queue(self.weather_exchange, 'fanout', self.weather_queue)
         self.init_queue(self.stations_exchange, 'fanout', self.stations_queue)
+        self.init_queue(self.notif_exchange, 'fanout', self.notif_queue)
         self.init_queue_trips(self.trips_queue)
         
     def init_queue_trips(self, queue):
-        self.channel.queue_declare(queue=queue, durable=True)
+        self.channel.queue_declare(queue=queue)
 
     def init_queue(self, exchange, type, queue):
-        self.channel.exchange_declare(exchange=exchange, exchange_type=type)
-        self.channel.queue_declare(queue=queue, auto_delete=False)
+        self.channel.exchange_declare(exchange=exchange, exchange_type=type, auto_delete=False)
     
     def match_type(self, data):
         columns = []
@@ -79,13 +83,28 @@ class ColumnFilter:
         ))
     
     def send_end_stations(self):
-        self.send_end(self.channel, self.stations_exchange, '')
+        self.send_end(self.channel, self.stations_exchange, self.stations_queue)
     
     def send_end_weather(self):
-        self.send_end(self.channel, self.weather_exchange, '')
+        self.send_end(self.channel, self.weather_exchange, self.weather_queue)
     
     def send_end_trips(self):
-        self.send_end(self.channel, self.trips_exchange, self.trips_queue)
+        logging.info(f'sending end trips')
+        while True:
+            result = self.channel.queue_declare(queue=self.trips_queue, passive=True)
+            if result.method.message_count == 0:
+                logging.info(f'queue is empty, sending')
+                self.channel.basic_publish(
+                exchange=self.notif_exchange,
+                routing_key=self.notif_queue,
+                body='end trips',
+                properties=pika.BasicProperties(
+                    delivery_mode=pika.spec.PERSISTENT_DELIVERY_MODE,
+                ))
+                return
+            else:
+                logging.info(f'queue has messages, waiting')
+                sleep(1)
 
 
     def __del__(self):

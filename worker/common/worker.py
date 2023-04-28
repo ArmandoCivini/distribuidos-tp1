@@ -1,5 +1,5 @@
 from common.stations import Stations
-from common.split import split
+from common.split import Split
 import multiprocessing as mp
 
 
@@ -9,9 +9,10 @@ class Worker:
         self.manager = mp.Manager()
         self.ended_stations = self.manager.Event()
         self.stations = Stations(consumer_id, self.ended_stations)
+        self.split = Split()
 
     def run(self):
         self.stations_process = mp.Process(target=self.stations.run(), args=())
         self.stations_process.start()
-        split(self.ended_stations)
+        self.split.split(self.ended_stations, self.consumer_id)
         self.stations_process.join()

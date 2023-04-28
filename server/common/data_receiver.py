@@ -6,10 +6,11 @@ def data_receiver(skt):
     column_filter = ColumnFilter()
     data, extra = read_json(skt)
     logging.info('sending data')#TODO: remove
-    for i in range(5):
-    # while extra != "finished" and extra != "error":
+    # for i in range(5):
+    while extra != "finished" and extra != "error":
         # logging.info(f'sending trip: {i}')#TODO: remove
         if extra == "end of stations":
+            logging.info('sending end of stations')#TODO: remove
             column_filter.send_end_stations()
         elif extra == "end of weather":
             column_filter.send_end_weather()
