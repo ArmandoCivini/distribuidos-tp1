@@ -48,8 +48,8 @@ class Stations:
             self.ended_stations.set() #tell split that all stations are ready
             ch.stop_consuming()
             return
-        if random.randint(0, 100) < 10:
-            logging.info("[{}] Received {}".format(self.consumer_id, body))
+        # if random.randint(0, 100) < 10:
+        #     logging.info("[{}] Received {}".format(self.consumer_id, body))
         try:
             station = json.loads(body)
         except:
