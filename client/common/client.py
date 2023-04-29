@@ -13,9 +13,9 @@ class Client:
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.connect((self.ip, self.port))
 
-    def send_file_list(self, file_list, end):
+    def send_file_list(self, file_list, end, batch):
         for file in file_list:
-            file_sender(self.sock, file)
+            file_sender(self.sock, file, batch)
         send_string(self.sock, end)
 
     def run(self):
@@ -24,10 +24,9 @@ class Client:
         stations_file_list = ["/data/montreal/stations.csv"]
         weather_file_list = ["/data/montreal/weather.csv"]
         trips_file_list = ["/data/montreal/trips.csv"]
-        # send_string(self.sock, "end of stations")
-        self.send_file_list(stations_file_list, "end of stations")
+        self.send_file_list(stations_file_list, "end of stations", 100)
         # self.send_file_list(weather_file_list, "end of weather")
-        self.send_file_list(trips_file_list, "eof")
+        self.send_file_list(trips_file_list, "eof", 1)
         logging.info(f"ALL FILES SENT")
         #TODO: close socket
     

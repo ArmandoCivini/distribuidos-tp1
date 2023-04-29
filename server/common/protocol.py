@@ -44,4 +44,5 @@ def read_json(skt):
     if msg == "error":
         logging.error(f"client error")
         return None, "error"
+    send_string(skt, "ok")
     return json.loads(msg), None

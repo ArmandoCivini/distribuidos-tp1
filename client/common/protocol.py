@@ -18,6 +18,10 @@ def read_int32(skt):
 def write_int32(skt, int):
     long_write(skt, int.to_bytes(4, byteorder='big', signed=True))
 
+def read_string(skt):
+    len = read_int32(skt)
+    return bytearray(long_read(skt, len)).decode('utf-8')
+
 def send_string(skt, string):
     length = len(string)
     write_int32(skt, length)

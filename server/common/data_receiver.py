@@ -8,7 +8,7 @@ def data_receiver(skt):
     logging.info('sending data')#TODO: remove
     # for i in range(5):
     while extra != "finished" and extra != "error":
-        # logging.info(f'sending trip: {i}')#TODO: remove
+        logging.info(f'received message: {data}')#TODO: remove
         if extra == "end of stations":
             logging.info('sending end of stations')#TODO: remove
             column_filter.send_end_stations()

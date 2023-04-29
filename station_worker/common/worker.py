@@ -1,5 +1,5 @@
 from common.stations import Stations
-from common.trips import Trips
+from common_extra.trips import Trips
 import multiprocessing as mp
 from common.process_station import process_trips_stations
 import logging
