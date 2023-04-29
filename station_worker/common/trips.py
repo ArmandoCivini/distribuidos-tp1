@@ -2,7 +2,7 @@ import pika
 import logging
 import json
 
-class Split:
+class Trips:
     def __init__(self, trips_queue):
         #TODO: add to configuration
         self.trips_exchange = 'trips_exchange'
@@ -43,8 +43,10 @@ class Split:
     def on_bindok_trips(self, frame):
         self.channel.basic_consume(queue=self.trips_queue, on_message_callback=self.callback_trips)
 
-    def split(self, ended_stations, worker_id):
-        # ended_stations.wait() #wait for stations to be ready
+    def trips(self, data, process_callback, result):
+        self.data = data
+        self.process_callback = process_callback
+        self.result = result
         try:
             self.connection.ioloop.start()
         except:
@@ -53,6 +55,7 @@ class Split:
             return
         logging.info(f'finished consuming trips: {self.trip_count}')
         self.connection.close()
+        return self.result
 
     def callback_notif(self, ch, method, properties, body):
         if body.decode("utf-8")  == 'end trips':
@@ -70,6 +73,13 @@ class Split:
             trip = json.loads(body)
         except:
             logging.error("failed to parse json: %s", body)
+            ch.basic_ack(delivery_tag=method.delivery_tag)
+            return
+        try:
+            result = self.process_callback(trip, self.data, self.result)
+            self.result = result
+        except:
+            # logging.error("failed to process trip: %s", body)
             ch.basic_ack(delivery_tag=method.delivery_tag)
             return
         ch.basic_ack(delivery_tag=method.delivery_tag)

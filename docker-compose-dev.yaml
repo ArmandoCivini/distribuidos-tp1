@@ -16,7 +16,7 @@ services:
 
   worker1:
     container_name: worker1
-    image: worker:latest
+    image: station_worker:latest
     entrypoint: python3 /main.py
     networks:
       - infra_testing_net
@@ -27,7 +27,7 @@ services:
 
   worker2:
     container_name: worker2
-    image: worker:latest
+    image: station_worker:latest
     entrypoint: python3 /main.py
     networks:
       - infra_testing_net
