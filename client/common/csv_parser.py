@@ -16,6 +16,8 @@ class CsvParser:
             try:
                 line = next(self.reader)
             except StopIteration:
+                if line_list[0] == []:
+                    return None
                 self.end = True
                 break
             for i in range(len(line)):

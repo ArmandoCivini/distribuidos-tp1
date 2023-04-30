@@ -18,6 +18,10 @@ class Stations:
         for key in keys:
             _dict[key] = []
         return _dict
+    
+    def post_process(self, _dict):
+        for key in _dict:
+            continue
 
     def get_stations(self):
         stations_exchange = self.stations_exchange
@@ -36,7 +40,7 @@ class Stations:
         channel.basic_consume(queue=queue_name, on_message_callback=lambda ch, method, properties, body: self.callback(ch, method, body))
 
         channel.start_consuming()
-        logging.info(f"finished consuming stations: {len(self.stations_montreal['code']) + len(self.stations_wt['code'])}")
+        logging.info(f"finished consuming stations: {len(self.stations_montreal['code'][0]) + len(self.stations_wt['code'])}")
         return self.stations_montreal, self.stations_wt
 
     def callback(self, ch, method, body):
@@ -47,7 +51,7 @@ class Stations:
             ch.stop_consuming()
             return
         if random.randint(0, 1000) < 1:
-            logging.info("[{}] Received {}".format(self.consumer_id, body))
+            logging.info("[{}] Received {}".format(self.consumer_id, body))#TODO: remove
         try:
             station = json.loads(body)
         except:
@@ -57,7 +61,7 @@ class Stations:
 
         for column in self.keys:
             if station['city'] == 'montreal':
-                self.stations_montreal[column].append(station[column])
+                self.stations_montreal[column].extend(station[column])
             else:
-                self.stations_wt[column].append(station[column])
+                self.stations_wt[column].extend(station[column])
         ch.basic_ack(delivery_tag=method.delivery_tag)

@@ -14,9 +14,7 @@ def file_sender(skt, file, batch):
     line = csv.get_line_json()
     while line:
         send_string(skt, line) #TODO: catch socket close
-        logging.info(f'waiting confirm')#TODO: remove
         msg = read_string(skt) #TODO: catch socket close
-        logging.info(f'received confirm')#TODO: remove
         if msg == "error":
             return "error"
         line = csv.get_line_json()

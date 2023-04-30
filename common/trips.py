@@ -2,8 +2,21 @@ import pika
 import logging
 import json
 
+def split_trips(trips):
+    city = trips.pop("city")
+    trip_list = []
+    for i in range(len(trips['start_date'])):
+        trip_values = {}
+        for column in trips:
+            trip_values[column] = trips[column][i]
+        trip_values['city'] = city
+        trip_list.append(trip_values)
+    return trip_list
+
 class Trips:
-    def __init__(self, trips_queue):
+    def __init__(self, trips_queue, process_callback, result):
+        self.process_callback = process_callback
+        self.result = result
         #TODO: add to configuration
         self.trips_exchange = 'trips_exchange'
         self.trips_queue = trips_queue
@@ -43,10 +56,10 @@ class Trips:
     def on_bindok_trips(self, frame):
         self.channel.basic_consume(queue=self.trips_queue, on_message_callback=self.callback_trips)
 
-    def trips(self, data, process_callback, result):
+    def trips(self, data):
         self.data = data
-        self.process_callback = process_callback
-        self.result = result
+        # self.process_callback = process_callback
+        # self.result = result
         try:
             self.connection.ioloop.start()
         except:
@@ -67,7 +80,6 @@ class Trips:
         ch.basic_ack(delivery_tag=method.delivery_tag)
 
     def callback_trips(self, ch, method, properties, body):
-        logging.info("Received trip {}".format(body))
         self.trip_count += 1
         try:
             trip = json.loads(body)
@@ -75,13 +87,15 @@ class Trips:
             logging.error("failed to parse json: %s", body)
             ch.basic_ack(delivery_tag=method.delivery_tag)
             return
-        try:
+        trip_list = split_trips(trip)
+        for trip in trip_list:
+            # try:
             result = self.process_callback(trip, self.data, self.result)
             self.result = result
-        except:
-            logging.error("failed to process trip: %s", body)
-            ch.basic_ack(delivery_tag=method.delivery_tag)
-            return
+            # except Exception as e:
+            #     logging.error(f"failed to process trip: {body}, with exception: {e} and data {self.data}")
+            #     ch.basic_ack(delivery_tag=method.delivery_tag)
+            #     return
         ch.basic_ack(delivery_tag=method.delivery_tag)
 
 

@@ -9,11 +9,12 @@ class Worker:
         self.consumer_id = consumer_id
         self.manager = mp.Manager()
         self.ended_stations = self.manager.Event()
-        self.trips = Trips('trips_stations_queue')
+        result = {'year_count':{}, 'total_distance': {}}
+        self.trips = Trips('trips_stations_queue', process_trips_stations, result)
         self.stations = Stations(consumer_id, self.ended_stations)
 
     def run(self):
         stations_montreal, stations_wt = self.stations.get_stations()
-        result = {'year_count':{}, 'total_distance': {}}
-        result = self.trips.trips([stations_montreal, stations_wt], process_trips_stations, result)
+        logging.info('stations_montreal: {}'.format(stations_montreal))
+        result = self.trips.trips([stations_montreal, stations_wt])
         logging.info('result: {}'.format(result))

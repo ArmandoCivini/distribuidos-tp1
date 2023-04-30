@@ -1,5 +1,5 @@
 from haversine import haversine
-
+import logging
 def merge_trip_stations(trip, stations_montreal, stations_wt):
     if trip['start_station_code'] in stations_montreal['code']:
         city = 'montreal'
@@ -9,11 +9,14 @@ def merge_trip_stations(trip, stations_montreal, stations_wt):
         indx = stations_wt['code'].index(trip['start_station_code'])
     return city, indx
 
+def get_pos(stations, indx):
+    return (float(stations['latitude'][indx]), float(stations['longitude'][indx]))
+
 def process_montreal(trip, stations, start_indx,curr_results):
-    start_pos = (stations['latitude'][start_indx], stations['longitude'][start_indx])
+    start_pos = get_pos(stations, start_indx)
     end_indx = stations['code'].index(trip['end_station_code'])
-    end_pos = (stations['latitude'][end_indx], stations['longitude'][end_indx])
-    distance = haversine(start_pos, end_pos, unit='km', axis=1)
+    end_pos = get_pos(stations, end_indx)
+    distance = haversine(start_pos, end_pos, unit='km')
     total_distance = curr_results['total_distance']
     end_station = stations['name'][end_indx]
     if end_station not in total_distance:
@@ -25,6 +28,7 @@ def process_montreal(trip, stations, start_indx,curr_results):
 
 def process_year(trip, stations, indx, curr_results):
     year = int(trip['start_date'].split('-')[0])
+    logging.info(f'year: {year}')
     year_count = curr_results['year_count']
     if year==2016 or year==2017:
         station = stations['name'][indx]
@@ -37,8 +41,9 @@ def process_year(trip, stations, indx, curr_results):
 def process_trips_stations(trip, stations, curr_results):
     stations_montreal, stations_wt = stations[0], stations[1]
     city, indx = merge_trip_stations(trip, stations_montreal, stations_wt)
+    logging.info(f'processing trip caca: {trip}, city: {city}, indx: {indx}')
     if city == 'montreal':
-        curr_results = process_montreal(trip, stations_montreal, curr_results)
+        curr_results = process_montreal(trip, stations_montreal, indx, curr_results)
         curr_results = process_year(trip, stations_montreal, indx, curr_results)
     else:
         curr_results = process_year(trip, stations_wt, indx, curr_results)
