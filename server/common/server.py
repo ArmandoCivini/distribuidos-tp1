@@ -1,13 +1,14 @@
 import socket
 import logging
 from common.data_receiver import data_receiver
-
+from common.result_reducer import ResultReducer
 class Server:
     def __init__(self, port, listen_backlog):
         # Initialize server socket
         self._server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self._server_socket.bind(('', port))
         self._server_socket.listen(listen_backlog)
+        self.result_reducer = ResultReducer()
 
     def run(self):
         # TODO: Modify this program to handle signal to graceful shutdown
@@ -19,6 +20,7 @@ class Server:
         try:
             error = data_receiver(client_sock)
             if error: logging.info(f"{error}")
+            result = self.result_reducer.reduce()
         except OSError as e:
             logging.error("action: receive_message | result: fail | error: {e}")
         finally:
@@ -30,3 +32,9 @@ class Server:
         c, addr = self._server_socket.accept()
         logging.info(f'action: accept_connections | result: success | ip: {addr[0]}')
         return c
+    
+    def __del__(self):
+        try:
+            self._server_socket.close()
+        except:
+            logging.error('action: close_server | result: fail')

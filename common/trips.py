@@ -32,11 +32,9 @@ class Trips:
     def on_channel_open(self, channel):
         self.channel = channel
         channel.basic_qos(prefetch_count=1)
-        # channel.queue_declare(queue=self.trips_queue)
+
         channel.exchange_declare(callback=self.on_exchange_declareok_trips, exchange=self.trips_exchange, exchange_type='fanout')
         channel.exchange_declare(callback=self.on_exchange_declareok_notif, exchange=self.notif_exchange, exchange_type='fanout')
-
-        # channel.basic_consume(queue=self.trips_queue, on_message_callback=self.callback_trips)
 
     def on_exchange_declareok_notif(self, frame):
         self.channel.queue_declare(self.notif_queue, callback=self.on_queue_declareok_notif)
@@ -58,8 +56,6 @@ class Trips:
 
     def trips(self, data):
         self.data = data
-        # self.process_callback = process_callback
-        # self.result = result
         try:
             self.connection.ioloop.start()
         except:

@@ -115,7 +115,7 @@ class ColumnFilter:
     def __del__(self):
         try:
             logging.info('closing rabbitmq connection')
-            #self.connection.close()
+            self.connection.close()
         except:
             pass
         return

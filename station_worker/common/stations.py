@@ -4,14 +4,13 @@ import json
 import random #TODO: remove
 
 class Stations:
-    def __init__(self, consumer_id, ended_stations):
+    def __init__(self, consumer_id):
         self.stations_exchange = 'stations_exchange'
         self.stations_queue = ''
         self.consumer_id = consumer_id
         self.keys = ['code', 'name', 'latitude', 'longitude'] #TODO: add to configuration
         self.stations_montreal = self.add_keys(self.keys)
         self.stations_wt = self.add_keys(self.keys)
-        self.ended_stations = ended_stations
 
     def add_keys(self, keys):
         _dict = {}
@@ -47,7 +46,6 @@ class Stations:
         if body.decode("utf-8")  == 'end':
             logging.info('received end for stations')
             ch.basic_ack(delivery_tag=method.delivery_tag)
-            self.ended_stations.set() #tell split that all stations are ready
             ch.stop_consuming()
             return
         if random.randint(0, 1000) < 1:
