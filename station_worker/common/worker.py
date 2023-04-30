@@ -15,6 +15,5 @@ class Worker:
 
     def run(self):
         stations_montreal, stations_wt = self.stations.get_stations()
-        logging.info('stations_montreal: {}'.format(stations_montreal))
         result = self.trips.trips([stations_montreal, stations_wt])
         logging.info('result: {}'.format(result))

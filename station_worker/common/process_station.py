@@ -1,5 +1,5 @@
 from haversine import haversine
-import logging
+
 def merge_trip_stations(trip, stations_montreal, stations_wt):
     if trip['start_station_code'] in stations_montreal['code']:
         city = 'montreal'
@@ -28,7 +28,6 @@ def process_montreal(trip, stations, start_indx,curr_results):
 
 def process_year(trip, stations, indx, curr_results):
     year = int(trip['start_date'].split('-')[0])
-    logging.info(f'year: {year}')
     year_count = curr_results['year_count']
     if year==2016 or year==2017:
         station = stations['name'][indx]
@@ -41,7 +40,6 @@ def process_year(trip, stations, indx, curr_results):
 def process_trips_stations(trip, stations, curr_results):
     stations_montreal, stations_wt = stations[0], stations[1]
     city, indx = merge_trip_stations(trip, stations_montreal, stations_wt)
-    logging.info(f'processing trip caca: {trip}, city: {city}, indx: {indx}')
     if city == 'montreal':
         curr_results = process_montreal(trip, stations_montreal, indx, curr_results)
         curr_results = process_year(trip, stations_montreal, indx, curr_results)

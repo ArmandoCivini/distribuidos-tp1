@@ -80,7 +80,7 @@ class Trips:
         ch.basic_ack(delivery_tag=method.delivery_tag)
 
     def callback_trips(self, ch, method, properties, body):
-        self.trip_count += 1
+        self.trip_count += 1 #TODO: remove
         try:
             trip = json.loads(body)
         except:
@@ -89,13 +89,13 @@ class Trips:
             return
         trip_list = split_trips(trip)
         for trip in trip_list:
-            # try:
-            result = self.process_callback(trip, self.data, self.result)
-            self.result = result
-            # except Exception as e:
-            #     logging.error(f"failed to process trip: {body}, with exception: {e} and data {self.data}")
-            #     ch.basic_ack(delivery_tag=method.delivery_tag)
-            #     return
+            try:
+                result = self.process_callback(trip, self.data, self.result)
+                self.result = result
+            except Exception as e:
+                logging.error(f"failed to process trip: {body}, with exception: {e}")
+                ch.basic_ack(delivery_tag=method.delivery_tag)
+                return
         ch.basic_ack(delivery_tag=method.delivery_tag)
 
 
