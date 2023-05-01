@@ -2,6 +2,8 @@ import socket
 import logging
 from common.data_receiver import data_receiver
 from common.result_reducer import ResultReducer
+from common.send_results import send_results
+
 class Server:
     def __init__(self, port, listen_backlog):
         # Initialize server socket
@@ -20,7 +22,8 @@ class Server:
         try:
             error = data_receiver(client_sock)
             if error: logging.info(f"{error}")
-            result = self.result_reducer.reduce()
+            result, error = self.result_reducer.reduce()
+            send_results(client_sock, result, error)
         except OSError as e:
             logging.error("action: receive_message | result: fail | error: {e}")
         finally:

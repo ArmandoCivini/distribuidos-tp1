@@ -1,6 +1,7 @@
 import pika
 import logging
 import json
+from common.post_process_results import post_process_results
 
 class ResultReducer:
     def __init__(self):
@@ -52,9 +53,10 @@ class ResultReducer:
             self.connection.close()
             return
         self.connection.close()
-        if self.is_error: return 'error'
+        if self.is_error: return None ,'error'
         logging.info(f'finished consuming results: {self.year_result}, {self.montreal_result}, {self.weather_result}')
-        return 0#todo: return results
+        results = post_process_results(self.year_result, self.montreal_result, self.weather_result)
+        return results, 'success'
 
     def callback_notif(self, ch, method, properties, body):
         if body.decode("utf-8")  == 'error':
