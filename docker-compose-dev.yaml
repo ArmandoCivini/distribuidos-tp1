@@ -14,9 +14,9 @@ services:
     volumes:
       - ./server/config.ini:/config.ini
 
-  worker1:
-    container_name: worker1
-    image: weather_worker:latest
+  worker_stations1:
+    container_name: worker_stations1
+    image: station_worker:latest
     entrypoint: python3 /main.py
     networks:
       - infra_testing_net
@@ -25,15 +25,37 @@ services:
       - WORKER_ID=1
       - LOGGING_LEVEL=INFO
 
-  worker2:
-    container_name: worker2
-    image: weather_worker:latest
+  worker_stations2:
+    container_name: worker_stations2
+    image: station_worker:latest
     entrypoint: python3 /main.py
     networks:
       - infra_testing_net
     environment:
       - PYTHONUNBUFFERED=1
       - WORKER_ID=2
+      - LOGGING_LEVEL=INFO
+
+  worker_weather1:
+    container_name: worker_weather1
+    image: weather_worker:latest
+    entrypoint: python3 /main.py
+    networks:
+      - infra_testing_net
+    environment:
+      - PYTHONUNBUFFERED=1
+      - WORKER_ID=3
+      - LOGGING_LEVEL=INFO
+
+  worker_weather2:
+    container_name: worker_weather2
+    image: weather_worker:latest
+    entrypoint: python3 /main.py
+    networks:
+      - infra_testing_net
+    environment:
+      - PYTHONUNBUFFERED=1
+      - WORKER_ID=4
       - LOGGING_LEVEL=INFO
 
   client:

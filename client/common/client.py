@@ -33,7 +33,7 @@ class Client:
         stations_file_list = ["/data/montreal/stations.csv"]
         weather_file_list = ["/data/montreal/weather.csv"]
         trips_file_list = ["/data/montreal/trips.csv"]
-        # self.send_file_list(stations_file_list, "end of stations", 100)
+        self.send_file_list(stations_file_list, "end of stations", 100)
         self.send_file_list(weather_file_list, "end of weather", 100)
         self.send_file_list(trips_file_list, "eof", 1)
         logging.info(f"ALL FILES SENT")

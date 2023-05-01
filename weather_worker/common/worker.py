@@ -8,7 +8,7 @@ class Worker:
     def __init__(self, consumer_id):
         self.consumer_id = consumer_id
         result = {'duration': 0, 'count': 0}
-        self.trips = Trips('trips_stations_queue', process_trips_weather, result)
+        self.trips = Trips('trips_weather_queue', process_trips_weather, result)
         self.weather = Weather(consumer_id)
 
     def run(self):

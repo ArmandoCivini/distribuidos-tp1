@@ -10,7 +10,7 @@ class ResultReducer:
         self.results_weather_queue = 'weather_result_queue'
         self.notif_exchange = 'notif_exchange'
         self.notif_queue = ''
-        self.station_result_total = 0 #TODO: add to configuration
+        self.station_result_total = 2 #TODO: add to configuration
         self.weather_result_total = 2
         self.station_result_count = 0
         self.weather_result_count = 0

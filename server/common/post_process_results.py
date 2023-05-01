@@ -3,6 +3,8 @@
 def post_process_weather(weather_result):
     if not weather_result:
         return 0
+    if weather_result['count'] == 0:
+        return 0
     return weather_result['duration']/weather_result['count']
 
 def post_process_year(year_result):
