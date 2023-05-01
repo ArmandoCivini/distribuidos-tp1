@@ -9,13 +9,14 @@ class ResultReducer:
         self.results_weather_queue = 'weather_result_queue'
         self.notif_exchange = 'notif_exchange'
         self.notif_queue = ''
-        self.station_result_total = 2 #TODO: add to configuration
-        self.weather_result_total = 0
+        self.station_result_total = 0 #TODO: add to configuration
+        self.weather_result_total = 2
         self.station_result_count = 0
         self.weather_result_count = 0
         self.is_error = False
         self.year_result = None
         self.montreal_result = None
+        self.weather_result = None
         self.connection = pika.SelectConnection(
     pika.ConnectionParameters(host='rabbitmq'), on_open_callback=self.on_open)
         
@@ -52,7 +53,7 @@ class ResultReducer:
             return
         self.connection.close()
         if self.is_error: return 'error'
-        logging.info(f'finished consuming results: {self.year_result}, {self.montreal_result}')
+        logging.info(f'finished consuming results: {self.year_result}, {self.montreal_result}, {self.weather_result}')
         return 0#todo: return results
 
     def callback_notif(self, ch, method, properties, body):
@@ -65,7 +66,7 @@ class ResultReducer:
         ch.basic_ack(delivery_tag=method.delivery_tag)
 
     def check_completed(self):
-        if self.station_result_count == self.station_result_total and self.weather_result_count == self.weather_result_total:
+        if self.station_result_count >= self.station_result_total and self.weather_result_count >= self.weather_result_total:
             self.connection.ioloop.stop()
 
     def combine_results(self, new_result, old_result, key1, key2):
@@ -100,13 +101,20 @@ class ResultReducer:
         ch.basic_ack(delivery_tag=method.delivery_tag)
 
     def callback_weather_results(self, ch, method, properties, body):
+            logging.info(f"received weather result{body}")
             try:
                 result = json.loads(body)
             except:
                 logging.error("failed to parse json: %s", body)
                 ch.basic_ack(delivery_tag=method.delivery_tag)
                 return
+            if self.weather_result == None:
+                self.weather_result = result
+            else:
+                self.weather_result['duration'] += result['duration']
+                self.weather_result['count'] += result['count']
             self.weather_result_count += 1
+            self.check_completed()
             ch.basic_ack(delivery_tag=method.delivery_tag)
 
     def __del__(self):

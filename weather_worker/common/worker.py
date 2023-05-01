@@ -1,18 +1,18 @@
-from common.stations import Stations
-from common.split import Split
-import multiprocessing as mp
+from common.weather import Weather
+from common_extra.result_sender import send_results
+from common_extra.trips import Trips
+from common.process_weather import process_trips_weather
+import logging
 
 class Worker:
     def __init__(self, consumer_id):
         self.consumer_id = consumer_id
-        self.manager = mp.Manager()
-        self.ended_stations = self.manager.Event()
-        # self.stations = Split('trips_weather_queue')
-        # self.stations = Stations(consumer_id, self.ended_stations)
-        self.split = Split('trips_weather_queue')
+        result = {'duration': 0, 'count': 0}
+        self.trips = Trips('trips_stations_queue', process_trips_weather, result)
+        self.weather = Weather(consumer_id)
 
     def run(self):
-        # self.stations_process = mp.Process(target=self.stations.split(), args=())
-        # self.stations_process.start()
-        self.split.split()
-        # self.stations_process.join()
+        weather_montreal, weather_toronto, weather_washington = self.weather.get_weather()
+        result = self.trips.trips([weather_montreal, weather_toronto, weather_washington])
+        logging.info('result: {}'.format(result))
+        send_results(result, 'weather_result_queue')#TODO: add to configuration
