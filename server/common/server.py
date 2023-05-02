@@ -24,7 +24,7 @@ class Server:
     def __handle_client_connection(self, client_sock):
         try:
             error = self.data_receiver.data_receiver(client_sock)
-            if error: 
+            if error == "error": 
                 logging.info(f"error in client")
                 self.graceful_shutdown(None, None)
             result, error = self.result_reducer.reduce()
