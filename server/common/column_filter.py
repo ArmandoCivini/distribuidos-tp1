@@ -27,7 +27,7 @@ class ColumnFilter:
     def init_queue_trips(self, queues):
         self.init_queue(self.trips_exchange, 'fanout')
         for queue in queues:
-            self.channel.queue_declare(queue=queue)
+            self.channel.queue_declare(queue=queue, durable=True)
 
     def init_queue(self, exchange, type):
         self.channel.exchange_declare(exchange=exchange, exchange_type=type, auto_delete=False)

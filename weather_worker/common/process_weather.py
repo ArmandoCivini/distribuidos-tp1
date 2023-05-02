@@ -8,7 +8,7 @@ def merge_trip_weather(trip, weather):
     return float(prectot)
 
 def process_trips_weather(trip, weather, curr_results):
-    logging.info(f"chat trips: {trip}")
+    # logging.info(f"chat trips: {trip}")
     weather_montreal, weather_toronto, weather_washington = weather[0], weather[1], weather[2]
     if trip['city'] == 'montreal':
         weather = weather_montreal

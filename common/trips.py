@@ -41,7 +41,7 @@ class Trips:
         self.channel.queue_declare(self.notif_queue, callback=self.on_queue_declareok_notif)
     
     def on_exchange_declareok_trips(self, frame):
-        self.channel.queue_declare(self.trips_queue, callback=self.on_queue_declareok_trips)
+        self.channel.queue_declare(self.trips_queue, callback=self.on_queue_declareok_trips, durable=True)
 
     def on_queue_declareok_notif(self, frame):
         self.channel.queue_bind(self.notif_queue, self.notif_exchange, callback=self.on_bindok_notif)
@@ -76,7 +76,15 @@ class Trips:
             return
         logging.info("Received notif {}".format(body))
         ch.basic_ack(delivery_tag=method.delivery_tag)
-
+    
+    def callback_trip(self, trip):
+        try:
+            result = self.process_callback(trip, self.data, self.result)
+            self.result = result
+        except Exception as e:
+            # logging.error("failed to process trip: %s", e)
+            return
+        
     def callback_trips(self, ch, method, properties, body):
         try:
             trip = json.loads(body)
@@ -88,13 +96,7 @@ class Trips:
         for trip in trip_list:
             if random.randint(0, 50000) < 1: logging.info(f"processing trip: {trip}")
             self.trip_count += 1
-            try:
-                result = self.process_callback(trip, self.data, self.result)
-                self.result = result
-            except Exception as e:
-                logging.error(f"failed to process trip: {trip}, with exception: {e}")
-                ch.basic_ack(delivery_tag=method.delivery_tag)
-                return
+            self.callback_trip(trip)
         ch.basic_ack(delivery_tag=method.delivery_tag)
 
 

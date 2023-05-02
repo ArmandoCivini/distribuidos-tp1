@@ -5,7 +5,7 @@ import logging
 import json
 import signal
 import sys
-
+from time import sleep
 class Client:
     def __init__(self, port, ip):
         self.port = port
@@ -40,8 +40,9 @@ class Client:
         trips_file_list = ["/data/montreal/trips.csv", "/data/toronto/trips.csv", "/data/washington/trips.csv"]
         # trips_file_list = ["/data/montreal/trips.csv"]
         try:
-            self.send_file_list(stations_file_list, "end of stations", 100)
             self.send_file_list(weather_file_list, "end of weather", 100)
+            self.send_file_list(stations_file_list, "end of stations", 100)
+            sleep(1)
             self.send_file_list(trips_file_list, "eof", 10)#TODO: change to 1000
             logging.info(f"ALL FILES SENT")
             self.receive_results()
