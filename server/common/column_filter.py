@@ -108,12 +108,22 @@ class ColumnFilter:
                 logging.info(f'queue has messages, waiting')
                 sleep(1)
 
+    def send_shutdown_trips(self):
+        logging.info(f'queue is empty, sending')
+        self.channel.basic_publish(
+        exchange=self.notif_exchange,
+        routing_key=self.notif_queue,
+        body='shutdown',
+        properties=pika.BasicProperties(
+            delivery_mode=pika.spec.PERSISTENT_DELIVERY_MODE,
+        ))
+
 
     def close(self):
         try:
             self.send_end_stations()
             self.send_end_weather()
-            self.send_end_trips()
+            self.send_shutdown_trips()
             logging.info('closing rabbitmq connection')
             self.connection.close()
         except:
