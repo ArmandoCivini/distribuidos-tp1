@@ -6,8 +6,6 @@ from datetime import datetime
 class Weather(Consumer):
     def __init__(self, consumer_id):
         super().__init__(consumer_id, 'weather_exchange', '')
-        # self.weather_exchange = 'weather_exchange'
-        # self.weather_queue = ''
         self.keys = ['date', 'prectot']
         self.weather_montreal = self.add_keys(self.keys)
         self.weather_toronto = self.add_keys(self.keys)

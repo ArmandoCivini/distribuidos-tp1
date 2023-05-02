@@ -17,7 +17,7 @@ class ResultReducer:
         self.is_error = False
         self.year_result = None
         self.montreal_result = None
-        self.weather_result = None
+        self.weather_result = {'count': 0, 'duration': 0}
         self.connection = pika.SelectConnection(
     pika.ConnectionParameters(host='rabbitmq'), on_open_callback=self.on_open)
         
@@ -79,12 +79,12 @@ class ResultReducer:
             if key not in old_result:
                 old_result[key] = new_result[key]
             else:
-                old_result[key][key1] += new_result[key][key1]
-                old_result[key][key2] += new_result[key][key2]
+                if key1 in old_result[key]: old_result[key][key1] += new_result[key][key1]
+                if key2 in old_result[key]: old_result[key][key2] += new_result[key][key2]
         return old_result
 
     def combine_results_years(self, result_year):
-        self.year_result = self.combine_results(result_year, self.year_result, 2016, 2017)
+        self.year_result = self.combine_results(result_year, self.year_result, '2016', '2017')
 
     def combine_results_montreal(self, result_montreal):
         self.montreal_result = self.combine_results(result_montreal, self.montreal_result, 'sum', 'count')
@@ -110,11 +110,9 @@ class ResultReducer:
                 logging.error("failed to parse json: %s", body)
                 ch.basic_ack(delivery_tag=method.delivery_tag)
                 return
-            if self.weather_result == None:
-                self.weather_result = result
-            else:
-                self.weather_result['duration'] += result['duration']
-                self.weather_result['count'] += result['count']
+            
+            if result['duration']: self.weather_result['duration'] += result['duration']
+            if result['count']: self.weather_result['count'] += result['count']
             self.weather_result_count += 1
             self.check_completed()
             ch.basic_ack(delivery_tag=method.delivery_tag)

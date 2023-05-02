@@ -17,20 +17,19 @@ class ColumnFilter:
         self.trips_weather_queue = 'trips_weather_queue'
         self.trips_stations_queue = 'trips_stations_queue'
         #TODO: add variables to configuration
-        logging.info('starting pika')#TODO: remove
         self.connection = pika.BlockingConnection(pika.ConnectionParameters(host='rabbitmq'))
         self.channel = self.connection.channel()
-        self.init_queue(self.weather_exchange, 'fanout', self.weather_queue)
-        self.init_queue(self.stations_exchange, 'fanout', self.stations_queue)
-        self.init_queue(self.notif_exchange, 'fanout', self.notif_queue)
+        self.init_queue(self.weather_exchange, 'fanout')
+        self.init_queue(self.stations_exchange, 'fanout')
+        self.init_queue(self.notif_exchange, 'fanout')
         self.init_queue_trips([self.trips_weather_queue, self.trips_stations_queue])
         
     def init_queue_trips(self, queues):
-        self.init_queue(self.trips_exchange, 'fanout', queues[0])
+        self.init_queue(self.trips_exchange, 'fanout')
         for queue in queues:
             self.channel.queue_declare(queue=queue)
 
-    def init_queue(self, exchange, type, queue):
+    def init_queue(self, exchange, type):
         self.channel.exchange_declare(exchange=exchange, exchange_type=type, auto_delete=False)
     
     def match_type(self, data):
@@ -68,8 +67,6 @@ class ColumnFilter:
             delivery_mode=pika.spec.PERSISTENT_DELIVERY_MODE,
         ))
         return
-    
-    #TODO: destroy function
 
     def filter_columns(self, data, columns):
         filtered_data = {}
@@ -97,7 +94,7 @@ class ColumnFilter:
         while True:
             stations_result = self.channel.queue_declare(queue=self.trips_stations_queue, passive=True)
             weather_result = self.channel.queue_declare(queue=self.trips_weather_queue, passive=True)
-            if stations_result.method.message_count == 0: #and weather_result.method.message_count == 0:
+            if stations_result.method.message_count == 0 and weather_result.method.message_count == 0:
                 logging.info(f'queue is empty, sending')
                 self.channel.basic_publish(
                 exchange=self.notif_exchange,
@@ -112,8 +109,11 @@ class ColumnFilter:
                 sleep(1)
 
 
-    def __del__(self):
+    def close(self):
         try:
+            self.send_end_stations()
+            self.send_end_weather()
+            self.send_end_trips()
             logging.info('closing rabbitmq connection')
             self.connection.close()
         except:

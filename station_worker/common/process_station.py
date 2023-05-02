@@ -1,18 +1,18 @@
 from haversine import haversine
 
-def merge_trip_stations(trip, stations_montreal, stations_wt):
-    if trip['start_station_code'] in stations_montreal['code']:
-        city = 'montreal'
-        indx = stations_montreal['code'].index(trip['start_station_code'])
+def merge_trip_stations(city, start_station_code, stations_montreal, stations_toronto, stations_washington):
+    if city == 'montreal':
+        indx = stations_montreal['code'].index(start_station_code)
+    elif city == 'toronto':
+        indx = stations_toronto['code'].index(start_station_code)
     else:
-        city = 'wt'
-        indx = stations_wt['code'].index(trip['start_station_code'])
-    return city, indx
+        indx = stations_washington['code'].index(start_station_code)
+    return indx
 
 def get_pos(stations, indx):
     return (float(stations['latitude'][indx]), float(stations['longitude'][indx]))
 
-def process_montreal(trip, stations, start_indx,curr_results):
+def process_montreal(trip, stations, start_indx, curr_results):
     start_pos = get_pos(stations, start_indx)
     end_indx = stations['code'].index(trip['end_station_code'])
     end_pos = get_pos(stations, end_indx)
@@ -27,22 +27,25 @@ def process_montreal(trip, stations, start_indx,curr_results):
     return curr_results
 
 def process_year(trip, stations, indx, curr_results):
-    year = int(trip['start_date'].split('-')[0])
+    year = trip['start_date'].split('-')[0]
     year_count = curr_results['year_count']
-    if year==2016 or year==2017:
+    if year=='2016' or year=='2017':
         station = stations['name'][indx]
         if station not in year_count:
-            year_count[station] = {2016: 0, 2017: 0}
+            year_count[station] = {'2016': 0, '2017': 0}
         year_count[station][year] += 1
     curr_results['year_count'] = year_count
     return curr_results
 
 def process_trips_stations(trip, stations, curr_results):
-    stations_montreal, stations_wt = stations[0], stations[1]
-    city, indx = merge_trip_stations(trip, stations_montreal, stations_wt)
+    stations_montreal, stations_toronto, stations_washington = stations[0], stations[1], stations[2]
+    city = trip['city']
+    indx = merge_trip_stations(city, trip['start_station_code'], stations_montreal, stations_toronto, stations_washington)
     if city == 'montreal':
         curr_results = process_montreal(trip, stations_montreal, indx, curr_results)
         curr_results = process_year(trip, stations_montreal, indx, curr_results)
+    elif city == 'toronto':
+        curr_results = process_year(trip, stations_toronto, indx, curr_results)
     else:
-        curr_results = process_year(trip, stations_wt, indx, curr_results)
+        curr_results = process_year(trip, stations_washington, indx, curr_results)
     return curr_results  

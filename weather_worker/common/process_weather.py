@@ -7,8 +7,9 @@ def merge_trip_weather(trip, weather):
     prectot = weather['prectot'][indx]
     return float(prectot)
 
-def process_trips_weather(trip, stations, curr_results):
-    weather_montreal, weather_toronto, weather_washington = stations[0], stations[1], stations[2]
+def process_trips_weather(trip, weather, curr_results):
+    logging.info(f"chat trips: {trip}")
+    weather_montreal, weather_toronto, weather_washington = weather[0], weather[1], weather[2]
     if trip['city'] == 'montreal':
         weather = weather_montreal
     elif trip['city'] == 'toronto':
@@ -17,8 +18,8 @@ def process_trips_weather(trip, stations, curr_results):
         weather = weather_washington
     prectot = merge_trip_weather(trip, weather)
     if prectot > 30: #TODO: add to configuration
-        duration = int(trip['duration_sec'])
+        duration = float(trip['duration_sec'])
         if duration < 0: duration = 0
-        curr_results['duration'] += int(trip['duration_sec'])
+        curr_results['duration'] += duration
         curr_results['count'] += 1
     return curr_results

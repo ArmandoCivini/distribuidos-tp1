@@ -12,8 +12,8 @@ class Worker:
         self.stations = Stations(consumer_id)
 
     def run(self):
-        stations_montreal, stations_wt = self.stations.get_stations()
-        result = self.trips.trips([stations_montreal, stations_wt])
+        stations_montreal, stations_toronto, stations_washington = self.stations.get_stations()
+        result = self.trips.trips([stations_montreal, stations_toronto, stations_washington])
         logging.info('result: {}'.format(result))
         send_results(result, 'stations_result_queue')#TODO: add to configuration
 

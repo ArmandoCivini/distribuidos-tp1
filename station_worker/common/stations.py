@@ -9,12 +9,12 @@ class Stations(Consumer):
         # self.stations_queue = ''
         self.keys = ['code', 'name', 'latitude', 'longitude']
         self.stations_montreal = self.add_keys(self.keys)
-        self.stations_wt = self.add_keys(self.keys)
+        self.stations_toronto = self.add_keys(self.keys)
+        self.stations_washington = self.add_keys(self.keys)
 
     def get_stations(self):
         self.run()
-        logging.info(f"finished consuming stations: {len(self.stations_montreal['code']) + len(self.stations_wt['code'])}")
-        return self.stations_montreal, self.stations_wt
+        return self.stations_montreal, self.stations_toronto, self.stations_washington
     
     def callback(self, ch, method, body):
         if body.decode("utf-8")  == 'end':
@@ -32,6 +32,8 @@ class Stations(Consumer):
         for column in self.keys:
             if station['city'] == 'montreal':
                 self.stations_montreal[column].extend(station[column])
+            elif station['city'] == 'toronto':
+                self.stations_toronto[column].extend(station[column])
             else:
-                self.stations_wt[column].extend(station[column])
+                self.stations_washington[column].extend(station[column])
         ch.basic_ack(delivery_tag=method.delivery_tag)

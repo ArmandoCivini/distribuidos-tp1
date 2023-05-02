@@ -1,6 +1,7 @@
 import pika
 import logging
 import json
+import random
 
 def split_trips(trips):
     city = trips.pop("city")
@@ -62,8 +63,9 @@ class Trips:
             logging.info('error receiving trips')
             self.connection.close()
             return
-        logging.info(f'finished consuming trips: {self.trip_count}')
+        logging.info(f'finished consuming trips')
         self.connection.close()
+        logging.info(f'MARCELO: {self.trip_count}')
         return self.result
 
     def callback_notif(self, ch, method, properties, body):
@@ -76,7 +78,6 @@ class Trips:
         ch.basic_ack(delivery_tag=method.delivery_tag)
 
     def callback_trips(self, ch, method, properties, body):
-        self.trip_count += 1 #TODO: remove
         try:
             trip = json.loads(body)
         except:
@@ -85,13 +86,15 @@ class Trips:
             return
         trip_list = split_trips(trip)
         for trip in trip_list:
-            # try:
-            result = self.process_callback(trip, self.data, self.result)
-            self.result = result
-            # except Exception as e:
-            #     logging.error(f"failed to process trip: {body}, with exception: {e}")
-            #     ch.basic_ack(delivery_tag=method.delivery_tag)
-            #     return
+            if random.randint(0, 50000) < 1: logging.info(f"processing trip: {trip}")
+            try:
+                result = self.process_callback(trip, self.data, self.result)
+                self.result = result
+                self.trip_count += 1
+            except Exception as e:
+                logging.error(f"failed to process trip: {trip}, with exception: {e}")
+                ch.basic_ack(delivery_tag=method.delivery_tag)
+                return
         ch.basic_ack(delivery_tag=method.delivery_tag)
 
 

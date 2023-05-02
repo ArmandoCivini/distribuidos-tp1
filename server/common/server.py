@@ -1,8 +1,10 @@
 import socket
 import logging
-from common.data_receiver import data_receiver
+from common.data_receiver import DataReceiver
 from common.result_reducer import ResultReducer
 from common.send_results import send_results
+import sys
+import signal
 
 class Server:
     def __init__(self, port, listen_backlog):
@@ -11,16 +13,17 @@ class Server:
         self._server_socket.bind(('', port))
         self._server_socket.listen(listen_backlog)
         self.result_reducer = ResultReducer()
+        self.data_receiver = DataReceiver()
+        signal.signal(signal.SIGTERM, self.graceful_shutdown)
 
     def run(self):
-        # TODO: Modify this program to handle signal to graceful shutdown
         # the server
         client_sock = self.__accept_new_connection()
         self.__handle_client_connection(client_sock)
 
     def __handle_client_connection(self, client_sock):
         try:
-            error = data_receiver(client_sock)
+            error = self.data_receiver.data_receiver(client_sock)
             if error: logging.info(f"{error}")
             result, error = self.result_reducer.reduce()
             send_results(client_sock, result, error)
@@ -36,7 +39,16 @@ class Server:
         logging.info(f'action: accept_connections | result: success | ip: {addr[0]}')
         return c
     
-    def __del__(self):
+    def graceful_shutdown(self, signum, frame):
+        logging.info(f"gracefully shutting down")
+        try:
+            self.data_receiver.close()
+            self._server_socket.close()
+        except:
+            pass
+        sys.exit(0)
+    
+    def close(self):
         try:
             self._server_socket.close()
         except:

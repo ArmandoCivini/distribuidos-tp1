@@ -3,11 +3,14 @@ from common.file_sender import file_sender
 from common.protocol import send_string, read_string
 import logging
 import json
+import signal
+import sys
 
 class Client:
     def __init__(self, port, ip):
         self.port = port
         self.ip = ip
+        signal.signal(signal.SIGTERM, self.graceful_shutdown)
 
     def connect(self):
         #TODO: check for error
@@ -30,15 +33,31 @@ class Client:
     def run(self):
         self.connect()
         #TODO: move to configuration
-        stations_file_list = ["/data/montreal/stations.csv"]
-        weather_file_list = ["/data/montreal/weather.csv"]
-        trips_file_list = ["/data/montreal/trips.csv"]
-        self.send_file_list(stations_file_list, "end of stations", 100)
-        self.send_file_list(weather_file_list, "end of weather", 100)
-        self.send_file_list(trips_file_list, "eof", 1)
-        logging.info(f"ALL FILES SENT")
-        result = self.receive_results()
-        #TODO: close socket
+        stations_file_list = ["/data/montreal/stations.csv", "/data/toronto/stations.csv", "/data/washington/stations.csv"]
+        # stations_file_list = ["/data/montreal/stations.csv"]
+        weather_file_list = ["/data/montreal/weather.csv", "/data/toronto/weather.csv", "/data/washington/weather.csv"]
+        # weather_file_list = ["/data/montreal/weather.csv"]
+        trips_file_list = ["/data/montreal/trips.csv", "/data/toronto/trips.csv", "/data/washington/trips.csv"]
+        # trips_file_list = ["/data/montreal/trips.csv"]
+        try:
+            self.send_file_list(stations_file_list, "end of stations", 100)
+            self.send_file_list(weather_file_list, "end of weather", 100)
+            self.send_file_list(trips_file_list, "eof", 10)#TODO: change to 1000
+            logging.info(f"ALL FILES SENT")
+            self.receive_results()
+        except socket.error as e:
+            logging.error(f"Socket closed, gracefully shuting down")
+            return
+        
+    def graceful_shutdown(self, signum, frame):
+        logging.info(f"gracefully shutting down")
+        send_string(self.sock, "error")
+        try:
+            self.sock.close()
+        except:
+            pass
+        sys.exit(0)
+
     
     def __del__(self):
         try:
