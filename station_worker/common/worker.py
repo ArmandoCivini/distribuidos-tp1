@@ -1,5 +1,5 @@
 from common.stations import Stations
-from common.result_sender import send_results
+from common_extra.result_sender import send_results
 from common_extra.trips import Trips
 from common.process_station import process_trips_stations
 import logging

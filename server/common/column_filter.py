@@ -22,7 +22,7 @@ class ColumnFilter:
         self.init_queue(self.weather_exchange, 'fanout')
         self.init_queue(self.stations_exchange, 'fanout')
         self.init_queue(self.notif_exchange, 'fanout')
-        self.init_queue_trips([self.trips_weather_queue, self.trips_stations_queue])
+        self.init_queue_trips([self.trips_stations_queue, self.trips_weather_queue])
         
     def init_queue_trips(self, queues):
         self.init_queue(self.trips_exchange, 'fanout')

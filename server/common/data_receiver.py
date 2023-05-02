@@ -15,6 +15,7 @@ class DataReceiver:
                 logging.info('sending end of stations')#TODO: remove
                 column_filter.send_end_stations()
             elif extra == "end of weather":
+                logging.info('sending end of weather')#TODO: remove
                 column_filter.send_end_weather()
             else:
                 column_filter.filter(data)

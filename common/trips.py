@@ -87,10 +87,10 @@ class Trips:
         trip_list = split_trips(trip)
         for trip in trip_list:
             if random.randint(0, 50000) < 1: logging.info(f"processing trip: {trip}")
+            self.trip_count += 1
             try:
                 result = self.process_callback(trip, self.data, self.result)
                 self.result = result
-                self.trip_count += 1
             except Exception as e:
                 logging.error(f"failed to process trip: {trip}, with exception: {e}")
                 ch.basic_ack(delivery_tag=method.delivery_tag)
