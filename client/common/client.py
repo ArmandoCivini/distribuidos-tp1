@@ -1,6 +1,6 @@
 import socket
 from common.file_sender import file_sender
-from common.protocol import send_string, read_string
+from common_extra.protocol import send_string, read_string
 import logging
 import json
 import signal
