@@ -42,8 +42,8 @@ class Client:
         try:
             self.send_file_list(weather_file_list, "end of weather", 100)
             self.send_file_list(stations_file_list, "end of stations", 100)
-            sleep(10)
-            self.send_file_list(trips_file_list, "eof", 1000)#TODO: change to 1000
+            sleep(5)
+            self.send_file_list(trips_file_list, "eof", 1)#TODO: change to 1000
             logging.info(f"ALL FILES SENT")
             self.receive_results()
         except socket.error as e:

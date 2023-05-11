@@ -2,7 +2,9 @@
 import os
 import logging
 from configparser import ConfigParser
-from common.worker import Worker
+from common_extra.worker import Worker
+from common.process_weather import process_trips_weather
+from common.weather import Weather
 
 def initialize_config():
 
@@ -41,7 +43,9 @@ def main():
 
     logging.info('started worker')
     consumer_id = os.environ["WORKER_ID"]
-    worker = Worker(consumer_id)
+    result = {'duration': 0, 'count': 0}
+    worker_object = Weather(consumer_id)
+    worker = Worker(result, 'trips_weather_queue', process_trips_weather, worker_object, 'weather_result_queue')
     worker.run()
     logging.info('closing worker')
 

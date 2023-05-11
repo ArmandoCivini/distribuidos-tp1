@@ -2,7 +2,10 @@
 import os
 import logging
 from configparser import ConfigParser
-from common.worker import Worker
+# from common.worker import Worker
+from common_extra.worker import Worker
+from common.stations import Stations
+from common.process_station import process_trips_stations
 
 def initialize_config():
 
@@ -41,7 +44,9 @@ def main():
 
     logging.info('started worker')
     consumer_id = os.environ["WORKER_ID"]
-    worker = Worker(consumer_id)
+    worker_object = Stations(consumer_id)
+    result = {'year_count':{}, 'total_distance': {}}
+    worker = Worker(result, 'trips_stations_queue', process_trips_stations, worker_object, 'stations_result_queue')
     worker.run()
     logging.info('closing worker')
 

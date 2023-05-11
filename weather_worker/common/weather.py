@@ -15,7 +15,7 @@ class Weather(Consumer):
         self.run()
         logging.info(f"finished consuming weather: {len(self.weather_montreal['date']) + len(self.weather_toronto['date']) + len(self.weather_washington['date'])}")
         self.post_processing()
-        return self.weather_montreal, self.weather_toronto, self.weather_washington
+        return [self.weather_montreal, self.weather_toronto, self.weather_washington]
     
     def callback(self, ch, method, body):
         if body.decode("utf-8")  == 'end':
@@ -49,3 +49,6 @@ class Weather(Consumer):
         self.weather_montreal = self.post_processing_weather(self.weather_montreal)
         self.weather_toronto = self.post_processing_weather(self.weather_toronto)
         self.weather_washington = self.post_processing_weather(self.weather_washington)
+
+    def work(self):
+        return self.get_weather()

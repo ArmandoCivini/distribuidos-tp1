@@ -16,6 +16,7 @@ def process_trips_weather(trip, weather, curr_results):
         weather = weather_toronto
     else:
         weather = weather_washington
+    # logging.info(f"weather: {weather}")
     prectot = merge_trip_weather(trip, weather)
     if prectot > 30: #TODO: add to configuration
         duration = float(trip['duration_sec'])

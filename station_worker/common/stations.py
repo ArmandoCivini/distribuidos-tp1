@@ -14,7 +14,7 @@ class Stations(Consumer):
 
     def get_stations(self):
         self.run()
-        return self.stations_montreal, self.stations_toronto, self.stations_washington
+        return [self.stations_montreal, self.stations_toronto, self.stations_washington]
     
     def callback(self, ch, method, body):
         if body.decode("utf-8")  == 'end':
@@ -37,3 +37,6 @@ class Stations(Consumer):
             else:
                 self.stations_washington[column].extend(station[column])
         ch.basic_ack(delivery_tag=method.delivery_tag)
+
+    def work(self):
+        return self.get_stations()
