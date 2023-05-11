@@ -1,8 +1,7 @@
 import logging
-import pika
 import json
 from time import sleep
-from common.utils import publish_message, init_connection, init_exchange
+from common.communication import publish_message, init_connection, init_exchange
 from common.filter import filter_data
 
 class DataPublisher:
@@ -44,7 +43,6 @@ class DataPublisher:
         filtered_data, exchange, channel, routing_key = self.match_type(data)
         if not filtered_data:
             return
-        # filtered_data = filter_columns(data, columns)
         publish_message(channel, exchange, routing_key, json.dumps(filtered_data))
         return
     

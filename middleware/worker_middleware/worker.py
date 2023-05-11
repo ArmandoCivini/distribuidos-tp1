@@ -1,5 +1,5 @@
-from common_extra.result_sender import send_results
-from common_extra.trips import Trips
+from middleware.result_sender import send_results
+from middleware.trips import Trips
 import logging
 
 class Worker:

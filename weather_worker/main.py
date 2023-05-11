@@ -2,7 +2,7 @@
 import os
 import logging
 from configparser import ConfigParser
-from common_extra.worker import Worker
+from middleware.worker import Worker
 from common.process_weather import process_trips_weather
 from common.weather import Weather
 

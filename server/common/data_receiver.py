@@ -1,4 +1,4 @@
-from common_extra.protocol import read_json
+from middleware.protocol import read_json
 from common.data_publisher import DataPublisher
 import logging
 

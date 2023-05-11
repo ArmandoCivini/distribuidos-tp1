@@ -1,11 +1,12 @@
 import socket
 from common.file_sender import file_sender
-from common_extra.protocol import send_string, read_string
+from middleware.protocol import send_string, read_string
 import logging
 import json
 import signal
 import sys
 from time import sleep
+
 class Client:
     def __init__(self, port, ip):
         self.port = port

@@ -2,7 +2,7 @@
 import os
 import logging
 from configparser import ConfigParser
-from common_extra.worker import Worker
+from middleware.worker import Worker
 from common.stations import Stations
 from common.process_station import process_trips_stations
 
