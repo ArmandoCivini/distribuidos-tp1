@@ -1,4 +1,4 @@
-from common.protocol import send_string
+from common_extra.protocol import send_string
 import json
 
 def send_results(skt, result, error):

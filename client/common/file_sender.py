@@ -1,6 +1,5 @@
 from common.csv_parser import CsvParser
-from common.protocol import send_string, read_string
-import logging
+from common_extra.protocol import send_string, read_string
 
 def get_metadata(file):
     data = file.split("/")

@@ -1,4 +1,4 @@
-from common.protocol import read_json
+from common_extra.protocol import read_json
 from common.column_filter import ColumnFilter
 import logging
 
