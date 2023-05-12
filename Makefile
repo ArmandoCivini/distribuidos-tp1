@@ -5,6 +5,7 @@ all:
 
 docker-image:
 	docker build -f ./server/Dockerfile -t "server:latest" .
+	docker build -f ./result_reducer/Dockerfile -t "result_reducer:latest" .
 	docker build -f ./client/Dockerfile -t "client:latest" .
 	docker build -f ./station_worker/Dockerfile -t "station_worker:latest" .
 	docker build -f ./weather_worker/Dockerfile -t "weather_worker:latest" .

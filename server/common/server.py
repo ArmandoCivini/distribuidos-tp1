@@ -5,6 +5,7 @@ from common.result_reducer import ResultReducer
 from common.send_results import send_results
 import sys
 import signal
+from common.receive_results import ReceiveResults
 
 class Server:
     def __init__(self, port, listen_backlog):
@@ -14,6 +15,7 @@ class Server:
         self._server_socket.listen(listen_backlog)
         self.result_reducer = ResultReducer()
         self.data_receiver = DataReceiver()
+        self.recieve_results = ReceiveResults()
         signal.signal(signal.SIGTERM, self.graceful_shutdown)
 
     def run(self):
@@ -27,7 +29,7 @@ class Server:
             if error == "error": 
                 logging.info(f"error in client")
                 self.graceful_shutdown(None, None)
-            result, error = self.result_reducer.reduce()
+            result = self.recieve_results.get_result()
             send_results(client_sock, result, error)
         except OSError as e:
             logging.error("action: receive_message | result: fail | error: {e}")

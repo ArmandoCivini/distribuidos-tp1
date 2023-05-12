@@ -13,6 +13,18 @@ services:
       - infra_testing_net
     volumes:
       - ./server/config.ini:/config.ini
+  
+  result_reducer:
+    container_name: result_reducer
+    image: result_reducer:latest
+    entrypoint: python3 /main.py
+    environment:
+      - PYTHONUNBUFFERED=1
+      - LOGGING_LEVEL=INFO
+    networks:
+      - infra_testing_net
+    volumes:
+      - ./result_reducer/config.ini:/config.ini
 
   worker_stations1:
     container_name: worker_stations1

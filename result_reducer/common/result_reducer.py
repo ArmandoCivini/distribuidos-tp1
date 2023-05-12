@@ -2,10 +2,10 @@ import pika
 import logging
 import json
 from common.post_process_results import post_process_results
-from common_middleware.consumer import Consumer
 
 class ResultReducer:
     def __init__(self):
+        #TODO: graceful shutdown
         #TODO: add to configuration
         self.results_stations_queue = 'stations_result_queue'
         self.results_weather_queue = 'weather_result_queue'

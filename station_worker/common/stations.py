@@ -5,8 +5,6 @@ from middleware.consumer import Consumer
 class Stations(Consumer):
     def __init__(self, consumer_id):
         super().__init__(consumer_id, 'stations_exchange', '')
-        # self.stations_exchange = 'stations_exchange'
-        # self.stations_queue = ''
         self.keys = ['code', 'name', 'latitude', 'longitude']
         self.stations_montreal = self.add_keys(self.keys)
         self.stations_toronto = self.add_keys(self.keys)
