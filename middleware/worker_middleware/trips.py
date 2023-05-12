@@ -108,6 +108,13 @@ class Trips:
     def queue_declare_pasive_callback(self, method_frame):
         if self.finished and method_frame.method.message_count == 0:
             self.connection.ioloop.stop()
+    
+    def graceful_shutdown(self):
+        try:
+            self.connection.ioloop.stop()
+            self.connection.close()
+        except:
+            pass
 
 
    

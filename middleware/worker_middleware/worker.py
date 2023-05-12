@@ -2,6 +2,8 @@ import logging
 from common_middleware.message_sender import send_message
 from middleware.trips import Trips
 from common_middleware.result_sender import send_results
+import signal
+import sys
 
 class Worker:
     def __init__(self, result, trip_queue, callback, worker_object, result_queue):
@@ -9,6 +11,7 @@ class Worker:
         self.trips = Trips(trip_queue, callback, result)
         self.worker_object = worker_object
         self.sync_queue = 'sync_queue'
+        signal.signal(signal.SIGTERM, self.graceful_shutdown)
 
     def run(self):
         work_result = self.worker_object.work()
@@ -16,3 +19,11 @@ class Worker:
         result = self.trips.trips(work_result)
         logging.info('result: {}'.format(result))
         send_results(result, self.result_queue)#TODO: add to configuration
+
+    def graceful_shutdown(self):
+        try:
+            self.trips.graceful_shutdown()
+            self.worker_object.__del__()
+        except:
+            pass
+        sys.exit(0)

@@ -53,5 +53,6 @@ class Server:
     def close(self):
         try:
             self._server_socket.close()
+            self.recieve_results.__del__()
         except:
             logging.error('action: close_server | result: fail')
