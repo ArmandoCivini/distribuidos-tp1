@@ -5,6 +5,7 @@ from common.send_results import send_results
 import sys
 import signal
 from common.receive_results import ReceiveResults
+import common.config as config
 
 class Server:
     def __init__(self, port, listen_backlog):
@@ -24,7 +25,7 @@ class Server:
     def __handle_client_connection(self, client_sock):
         try:
             error = self.data_receiver.data_receiver(client_sock)
-            if error == "error": 
+            if error == config.ERROR_MESSAGE: 
                 logging.info(f"error in client")
                 self.graceful_shutdown(None, None)
             result = self.recieve_results.get_result()

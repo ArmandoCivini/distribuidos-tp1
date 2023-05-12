@@ -13,6 +13,7 @@ services:
       - infra_testing_net
     volumes:
       - ./server/config.ini:/config.ini
+      - ./middleware/middleware_config.ini:/middleware_config.ini
   
   result_reducer:
     container_name: result_reducer

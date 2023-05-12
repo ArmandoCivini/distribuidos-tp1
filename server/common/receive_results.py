@@ -1,10 +1,11 @@
 from common_middleware.consumer import Consumer
 import logging
 import json
+import common.config as config
 
 class ReceiveResults(Consumer):
     def __init__(self):
-        super().__init__(0, '', 'combined_results_queue')
+        super().__init__(0, config.COMBINE_RESULTS_EXCHANGE, config.COMBINE_RESULTS_QUEUE)
         self.result = None
 
     def get_result(self):

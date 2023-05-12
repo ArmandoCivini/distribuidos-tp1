@@ -4,7 +4,7 @@ from configparser import ConfigParser
 from common.server import Server
 import logging
 import os
-
+from common.config import declare_config
 
 def initialize_config():
     """ Parse env variables or config file to find program config params
@@ -26,6 +26,40 @@ def initialize_config():
         config_params["port"] = int(os.getenv('SERVER_PORT', config["DEFAULT"]["SERVER_PORT"]))
         config_params["listen_backlog"] = int(os.getenv('SERVER_LISTEN_BACKLOG', config["DEFAULT"]["SERVER_LISTEN_BACKLOG"]))
         config_params["logging_level"] = os.getenv('LOGGING_LEVEL', config["DEFAULT"]["LOGGING_LEVEL"])
+        config_params["weather_columns"] = os.getenv('WEATHER_COLUMNS', config["DEFAULT"]["WEATHER_COLUMNS"])
+        config_params["stations_columns"] = os.getenv('STATIONS_COLUMNS', config["DEFAULT"]["STATIONS_COLUMNS"])
+        config_params["trips_columns"] = os.getenv('TRIPS_COLUMNS', config["DEFAULT"]["TRIPS_COLUMNS"])
+    except KeyError as e:
+        raise KeyError("Key was not found. Error: {} .Aborting server".format(e))
+    except ValueError as e:
+        raise ValueError("Key could not be parsed. Error: {}. Aborting server".format(e))
+    
+    config.read("middleware_config.ini")
+
+    try:
+        config_params["weather_type"] = os.getenv('WEATHER_TYPE', config["DEFAULT"]["WEATHER_TYPE"])
+        config_params["stations_type"] = os.getenv('STATIONS_TYPE', config["DEFAULT"]["STATIONS_TYPE"])
+        config_params["trips_type"] = os.getenv('TRIPS_TYPE', config["DEFAULT"]["TRIPS_TYPE"])
+        config_params["weather_exchange"] = os.getenv('WEATHER_EXCHANGE', config["DEFAULT"]["WEATHER_EXCHANGE"])
+        config_params["stations_exchange"] = os.getenv('STATIONS_EXCHANGE', config["DEFAULT"]["STATIONS_EXCHANGE"])
+        config_params["trips_exchange"] = os.getenv('TRIPS_EXCHANGE', config["DEFAULT"]["TRIPS_EXCHANGE"])
+        config_params["notif_exchange"] = os.getenv('NOTIF_EXCHANGE', config["DEFAULT"]["NOTIF_EXCHANGE"])
+        config_params["weather_queue"] = os.getenv('WEATHER_QUEUE', config["DEFAULT"]["WEATHER_QUEUE"])
+        config_params["stations_queue"] = os.getenv('STATIONS_QUEUE', config["DEFAULT"]["STATIONS_QUEUE"])
+        config_params["trips_queue"] = os.getenv('TRIPS_QUEUE', config["DEFAULT"]["TRIPS_QUEUE"])
+        config_params["notif_queue"] = os.getenv('NOTIF_QUEUE', config["DEFAULT"]["NOTIF_QUEUE"])
+        config_params["trips_weather_queue"] = os.getenv('TRIPS_WEATHER_QUEUE', config["DEFAULT"]["TRIPS_WEATHER_QUEUE"])
+        config_params["trips_stations_queue"] = os.getenv('TRIPS_STATIONS_QUEUE', config["DEFAULT"]["TRIPS_STATIONS_QUEUE"])
+        config_params["end_message"] = os.getenv('END_MESSAGE', config["DEFAULT"]["END_MESSAGE"])
+        config_params["end_trips_message"] = os.getenv('END_TRIPS_MESSAGE', config["DEFAULT"]["END_TRIPS_MESSAGE"])
+        config_params["combine_results_exchange"] = os.getenv('COMBINE_RESULTS_EXCHANGE', config["DEFAULT"]["COMBINE_RESULTS_EXCHANGE"])
+        config_params["combine_results_queue"] = os.getenv('COMBINE_RESULTS_QUEUE', config["DEFAULT"]["COMBINE_RESULTS_QUEUE"])
+        config_params["sync_exchange"] = os.getenv('SYNC_EXCHANGE', config["DEFAULT"]["SYNC_EXCHANGE"])
+        config_params["sync_queue"] = os.getenv('SYNC_QUEUE', config["DEFAULT"]["SYNC_QUEUE"])
+        config_params["error_message"] = os.getenv('ERROR_MESSAGE', config["DEFAULT"]["ERROR_MESSAGE"])
+        config_params["finished_message"] = os.getenv('FINISHED_MESSAGE', config["DEFAULT"]["FINISHED_MESSAGE"])
+        config_params["weather_workers_count"] = os.getenv('WEATHER_WORKERS_COUNT', config["DEFAULT"]["WEATHER_WORKERS_COUNT"])
+        config_params["stations_workers_count"] = os.getenv('STATIONS_WORKERS_COUNT', config["DEFAULT"]["STATIONS_WORKERS_COUNT"])
     except KeyError as e:
         raise KeyError("Key was not found. Error: {} .Aborting server".format(e))
     except ValueError as e:
@@ -41,7 +75,7 @@ def main():
     listen_backlog = config_params["listen_backlog"]
 
     initialize_log(logging_level)
-
+    declare_config(config_params)
     # Log config parameters at the beginning of the program to verify the configuration
     # of the component
     logging.debug(f"action: config | result: success | port: {port} | "
