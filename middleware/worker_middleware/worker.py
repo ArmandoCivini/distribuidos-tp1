@@ -1,4 +1,4 @@
-from middleware.result_sender import send_results
+from common_middleware.result_sender import send_results
 from middleware.trips import Trips
 import logging
 

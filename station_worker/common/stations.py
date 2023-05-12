@@ -1,6 +1,6 @@
 import logging
 import json
-from middleware.consumer import Consumer
+from common_middleware.consumer import Consumer
 
 class Stations(Consumer):
     def __init__(self, consumer_id):

@@ -1,6 +1,6 @@
 import logging
 import json
-from middleware.consumer import Consumer
+from common_middleware.consumer import Consumer
 from datetime import datetime
 
 class Weather(Consumer):

@@ -1,7 +1,7 @@
 import logging
 import json
 from time import sleep
-from common.communication import publish_message, init_connection, init_exchange
+from common_middleware.communication import publish_message, init_connection, init_exchange
 from common.filter import filter_data
 
 class DataPublisher:
@@ -74,9 +74,6 @@ class DataPublisher:
 
     def close(self):
         try:
-            # self.send_end_stations()
-            # self.send_end_weather()
-            # self.send_shutdown_trips()
             logging.info('closing rabbitmq connection')
             self.connection.close()
         except:

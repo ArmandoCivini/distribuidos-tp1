@@ -1,7 +1,6 @@
 import socket
 import logging
 from common.data_receiver import DataReceiver
-from common.result_reducer import ResultReducer
 from common.send_results import send_results
 import sys
 import signal
@@ -13,7 +12,6 @@ class Server:
         self._server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self._server_socket.bind(('', port))
         self._server_socket.listen(listen_backlog)
-        self.result_reducer = ResultReducer()
         self.data_receiver = DataReceiver()
         self.recieve_results = ReceiveResults()
         signal.signal(signal.SIGTERM, self.graceful_shutdown)

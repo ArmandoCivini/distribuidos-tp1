@@ -2,10 +2,11 @@ import pika
 import logging
 import json
 from common.post_process_results import post_process_results
+import signal
+import sys
 
 class ResultReducer:
     def __init__(self):
-        #TODO: graceful shutdown
         #TODO: add to configuration
         self.results_stations_queue = 'stations_result_queue'
         self.results_weather_queue = 'weather_result_queue'
@@ -20,6 +21,7 @@ class ResultReducer:
         self.weather_result = {'count': 0, 'duration': 0}
         self.connection = pika.SelectConnection(
     pika.ConnectionParameters(host='rabbitmq'), on_open_callback=self.on_open)
+        signal.signal(signal.SIGTERM, self.graceful_shutdown)
         
     def on_open(self, connection):
         connection.channel(on_open_callback=self.on_channel_open)
@@ -102,6 +104,13 @@ class ResultReducer:
             self.connection.close()
         except:
             pass
-
+    
+    def graceful_shutdown(self, signum, frame):
+        logging.info('received graceful shutdown signal')
+        try:
+            self.connection.close()
+        except:
+            pass
+        sys.exit(0)
 
    
