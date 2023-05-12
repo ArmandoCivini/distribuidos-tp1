@@ -1,6 +1,5 @@
 import logging
 import json
-from time import sleep
 from common_middleware.communication import publish_message, init_connection, init_exchange
 from common.filter import filter_data
 
@@ -57,16 +56,7 @@ class DataPublisher:
     
     def send_end_trips(self):
         logging.info(f'sending end trips')
-        while True:
-            stations_result = self.channel.queue_declare(queue=self.trips_stations_queue, passive=True)
-            weather_result = self.channel.queue_declare(queue=self.trips_weather_queue, passive=True)
-            if stations_result.method.message_count == 0 and weather_result.method.message_count == 0:
-                logging.info(f'queue is empty, sending')
-                publish_message(self.channel, self.notif_exchange, self.notif_queue, 'end trips')
-                return
-            else:
-                logging.info(f'queue has messages, waiting')
-                sleep(1)
+        publish_message(self.channel, self.notif_exchange, self.notif_queue, 'end trips')
 
     def send_shutdown_trips(self):
         logging.info(f'queue is empty, sending')

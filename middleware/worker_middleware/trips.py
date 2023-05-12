@@ -24,6 +24,7 @@ class Trips:
         self.notif_exchange = 'notif_exchange'
         self.notif_queue = ''
         self.trip_count = 0
+        self.finished = False
         self.connection = pika.SelectConnection(
     pika.ConnectionParameters(host='rabbitmq'), on_open_callback=self.on_open)
         
@@ -71,10 +72,11 @@ class Trips:
     def callback_notif(self, ch, method, properties, body):
         if body.decode("utf-8")  == 'end trips':
             logging.info('received end for trips')
-            ch.basic_ack(delivery_tag=method.delivery_tag)
-            self.connection.ioloop.stop()
-            return
-        logging.info("Received notif {}".format(body))
+            self.finished = True
+            # self.connection.ioloop.stop()
+        else:
+            logging.info("Received notif {}".format(body))
+        self.check_end()
         ch.basic_ack(delivery_tag=method.delivery_tag)
     
     def callback_trip(self, trip):
@@ -97,8 +99,15 @@ class Trips:
             if random.randint(0, 50000) < 1: logging.info(f"processing trip: {trip}")
             self.trip_count += 1
             self.callback_trip(trip)
+        self.check_end()
         ch.basic_ack(delivery_tag=method.delivery_tag)
 
+    def check_end(self):
+        self.channel.queue_declare(callback=self.queue_declare_pasive_callback, queue=self.trips_queue, passive=True)
+    
+    def queue_declare_pasive_callback(self, method_frame):
+        if self.finished and method_frame.method.message_count == 0:
+            self.connection.ioloop.stop()
 
 
    
