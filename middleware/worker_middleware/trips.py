@@ -66,7 +66,7 @@ class Trips:
             return
         logging.info(f'finished consuming trips')
         self.connection.close()
-        logging.info(f'MARCELO: {self.trip_count}')
+        logging.info(f'MARCELO: {self.trip_count}') #TODO: remove
         return self.result
 
     def callback_notif(self, ch, method, properties, body):

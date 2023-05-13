@@ -58,6 +58,8 @@ def initialize_config():
         config_params["sync_queue"] = os.getenv('SYNC_QUEUE', config["DEFAULT"]["SYNC_QUEUE"])
         config_params["error_message"] = os.getenv('ERROR_MESSAGE', config["DEFAULT"]["ERROR_MESSAGE"])
         config_params["finished_message"] = os.getenv('FINISHED_MESSAGE', config["DEFAULT"]["FINISHED_MESSAGE"])
+        config_params["end_stations_message"] = os.getenv('END_STATIONS_MESSAGE', config["DEFAULT"]["END_STATIONS_MESSAGE"])
+        config_params["end_weather_message"] = os.getenv('END_WEATHER_MESSAGE', config["DEFAULT"]["END_WEATHER_MESSAGE"])
         config_params["weather_workers_count"] = os.getenv('WEATHER_WORKERS_COUNT', config["DEFAULT"]["WEATHER_WORKERS_COUNT"])
         config_params["stations_workers_count"] = os.getenv('STATIONS_WORKERS_COUNT', config["DEFAULT"]["STATIONS_WORKERS_COUNT"])
     except KeyError as e:

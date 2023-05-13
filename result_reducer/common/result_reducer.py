@@ -4,15 +4,15 @@ import json
 from common.post_process_results import post_process_results
 import signal
 import sys
+import common.config as config
 
 class ResultReducer:
     def __init__(self):
         #TODO: add to configuration
-        self.results_stations_queue = 'stations_result_queue'
-        self.results_weather_queue = 'weather_result_queue'
-        self.notif_queue = ''
-        self.station_result_total = 2 #TODO: add to configuration
-        self.weather_result_total = 2
+        self.results_stations_queue = config.STATIONS_RESULT_QUEUE
+        self.results_weather_queue = config.WEATHER_RESULT_QUEUE
+        self.station_result_total = config.STATIONS_WORKERS_COUNT
+        self.weather_result_total = config.WEATHER_WORKERS_COUNT
         self.station_result_count = 0
         self.weather_result_count = 0
         self.is_error = False
@@ -20,7 +20,7 @@ class ResultReducer:
         self.montreal_result = None
         self.weather_result = {'count': 0, 'duration': 0}
         self.connection = pika.SelectConnection(
-    pika.ConnectionParameters(host='rabbitmq'), on_open_callback=self.on_open)
+            pika.ConnectionParameters(host=config.RABBIT_HOST), on_open_callback=self.on_open)
         signal.signal(signal.SIGTERM, self.graceful_shutdown)
         
     def on_open(self, connection):
@@ -44,7 +44,7 @@ class ResultReducer:
             self.connection.close()
             return
         self.connection.close()
-        if self.is_error: return None ,'error'
+        if self.is_error: return None ,config.ERROR_MESSAGE
         logging.info(f'finished consuming results: {self.year_result}, {self.montreal_result}, {self.weather_result}')
         results = post_process_results(self.year_result, self.montreal_result, self.weather_result)
         return results, 'success'
@@ -66,7 +66,8 @@ class ResultReducer:
         return old_result
 
     def combine_results_years(self, result_year):
-        self.year_result = self.combine_results(result_year, self.year_result, '2016', '2017')
+        # self.year_result = self.combine_results(result_year, self.year_result, '2016', '2017')
+        self.year_result = self.combine_results(result_year, self.year_result, config.YEAR1, config.YEAR2)
 
     def combine_results_montreal(self, result_montreal):
         self.montreal_result = self.combine_results(result_montreal, self.montreal_result, 'sum', 'count')

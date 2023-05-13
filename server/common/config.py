@@ -25,6 +25,8 @@ def declare_config(config_params):
     global SYNC_QUEUE
     global ERROR_MESSAGE
     global FINISHED_MESSAGE
+    global END_STATIONS_MESSAGE
+    global END_WEATHER_MESSAGE
     global WORKERS_COUNT
     WEATHER_COLUMNS = json.loads(config_params["weather_columns"])
     STATIONS_COLUMNS = json.loads(config_params["stations_columns"])
@@ -50,4 +52,6 @@ def declare_config(config_params):
     SYNC_QUEUE = json.loads(config_params["sync_queue"])
     ERROR_MESSAGE = json.loads(config_params["error_message"])
     FINISHED_MESSAGE = json.loads(config_params["finished_message"])
+    END_STATIONS_MESSAGE = json.loads(config_params["end_stations_message"])
+    END_WEATHER_MESSAGE = json.loads(config_params["end_weather_message"])
     WORKERS_COUNT = int(config_params["weather_workers_count"]) + int(config_params["stations_workers_count"])

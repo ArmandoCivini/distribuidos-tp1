@@ -26,6 +26,7 @@ services:
       - infra_testing_net
     volumes:
       - ./result_reducer/config.ini:/config.ini
+      - ./middleware/middleware_config.ini:/middleware_config.ini
 
   worker_stations1:
     container_name: worker_stations1
