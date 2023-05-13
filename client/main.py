@@ -32,6 +32,8 @@ def initialize_config():
     try:
         config_params["error_message"] = os.getenv('ERROR_MESSAGE', config["DEFAULT"]["ERROR_MESSAGE"])
         config_params["eof"] = os.getenv('END_OF_FILE', config["DEFAULT"]["END_OF_FILE"])
+        config_params["end_stations_message"] = os.getenv('END_STATIONS_MESSAGE', config["DEFAULT"]["END_STATIONS_MESSAGE"])
+        config_params["end_weather_message"] = os.getenv('END_WEATHER_MESSAGE', config["DEFAULT"]["END_WEATHER_MESSAGE"])
     except KeyError as e:
         raise KeyError("Key was not found. Error: {} .Aborting server".format(e))
     except ValueError as e:

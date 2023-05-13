@@ -25,5 +25,3 @@ class CsvParser:
         csv_dict = dict(zip(self.keys, line_list))
         csv_dict.update(self.extra_fields)
         return json.dumps(csv_dict)
-    
-    #TODO: destroy function

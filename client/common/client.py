@@ -41,8 +41,8 @@ class Client:
         trips_file_list = config.TRIPS_FILE_LIST
 
         try:
-            self.send_file_list(stations_file_list, "end of stations", config.PREDATA_BATCH_SIZE) #this order has to be maintained
-            self.send_file_list(weather_file_list, "end of weather", config.PREDATA_BATCH_SIZE)
+            self.send_file_list(stations_file_list, config.END_STATIONS_MESSAGE, config.PREDATA_BATCH_SIZE) #this order has to be maintained
+            self.send_file_list(weather_file_list, config.END_WEATHER_MESSAGE, config.PREDATA_BATCH_SIZE)
 
             logging.info(f"SENDING TRIPS")
             self.send_file_list(trips_file_list, config.EOF, config.DATA_BATCH_SIZE)
