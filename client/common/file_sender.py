@@ -12,8 +12,11 @@ def file_sender(skt, file, batch):
     csv = CsvParser(file, get_metadata(file), batch)
     line = csv.get_line_json()
     while line:
-        send_string(skt, line) #TODO: catch socket close
-        msg = read_string(skt) #TODO: catch socket close
+        try:
+            send_string(skt, line)
+            msg = read_string(skt)
+        except:
+            return "error"
         if msg == "error":
             return "error"
         line = csv.get_line_json()

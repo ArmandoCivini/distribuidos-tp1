@@ -5,6 +5,7 @@ import logging
 import json
 import signal
 import sys
+import common.config as config
 
 class Client:
     def __init__(self, port, ip):
@@ -13,9 +14,12 @@ class Client:
         signal.signal(signal.SIGTERM, self.graceful_shutdown)
 
     def connect(self):
-        #TODO: check for error
-        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.sock.connect((self.ip, self.port))
+        try:
+            self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            self.sock.connect((self.ip, self.port))
+        except socket.error as e:
+            logging.error(f"Error connecting to server: {e}")
+            sys.exit(0)
 
     def send_file_list(self, file_list, end, batch):
         for file in file_list:
@@ -24,7 +28,7 @@ class Client:
 
     def receive_results(self):
         result_string = read_string(self.sock)
-        if result_string == "error":
+        if result_string == config.ERROR_MESSAGE:
             logging.error("error in results")
             return
         result =  json.loads(result_string)
@@ -32,19 +36,16 @@ class Client:
 
     def run(self):
         self.connect()
-        #TODO: move to configuration
-        # stations_file_list = ["/data/montreal/stations.csv", "/data/toronto/stations.csv", "/data/washington/stations.csv"]
-        stations_file_list = ["/data/montreal/stations.csv"]
-        # weather_file_list = ["/data/montreal/weather.csv", "/data/toronto/weather.csv", "/data/washington/weather.csv"]
-        weather_file_list = ["/data/montreal/weather.csv"]
-        # trips_file_list = ["/data/montreal/trips.csv", "/data/toronto/trips.csv", "/data/washington/trips.csv"]
-        trips_file_list = ["/data/montreal/trips.csv"]
+        stations_file_list = config.STATIONS_FILE_LIST
+        weather_file_list = config.WEATHER_FILE_LIST
+        trips_file_list = config.TRIPS_FILE_LIST
+
         try:
-            self.send_file_list(stations_file_list, "end of stations", 100) #this order has to be maintained
-            self.send_file_list(weather_file_list, "end of weather", 100)
+            self.send_file_list(stations_file_list, "end of stations", config.PREDATA_BATCH_SIZE) #this order has to be maintained
+            self.send_file_list(weather_file_list, "end of weather", config.PREDATA_BATCH_SIZE)
 
             logging.info(f"SENDING TRIPS")
-            self.send_file_list(trips_file_list, "eof", 1)#TODO: change to 1000
+            self.send_file_list(trips_file_list, config.EOF, config.DATA_BATCH_SIZE)
             logging.info(f"ALL FILES SENT")
             self.receive_results()
         except socket.error as e:
@@ -53,7 +54,7 @@ class Client:
         
     def graceful_shutdown(self, signum, frame):
         logging.info(f"gracefully shutting down")
-        send_string(self.sock, "error")
+        send_string(self.sock, config.ERROR_MESSAGE)
         try:
             self.sock.close()
         except:
