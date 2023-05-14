@@ -2,11 +2,12 @@ import logging
 import json
 from common_middleware.consumer import Consumer
 from datetime import datetime
+import common.config as config
 
 class Weather(Consumer):
     def __init__(self, consumer_id):
-        super().__init__(consumer_id, 'weather_exchange', '')
-        self.keys = ['date', 'prectot']
+        super().__init__(consumer_id, config.WEATHER_EXCHANGE, config.WEATHER_QUEUE)
+        self.keys = config.WEATHER_COLUMN_KEYS
         self.weather_montreal = self.add_keys(self.keys)
         self.weather_toronto = self.add_keys(self.keys)
         self.weather_washington = self.add_keys(self.keys)
@@ -18,7 +19,7 @@ class Weather(Consumer):
         return [self.weather_montreal, self.weather_toronto, self.weather_washington]
     
     def callback(self, ch, method, body):
-        if body.decode("utf-8")  == 'end':
+        if body.decode("utf-8")  == config.END_MESSAGE:
             logging.info('received end for weather')
             ch.basic_ack(delivery_tag=method.delivery_tag)
             ch.stop_consuming()
@@ -31,9 +32,9 @@ class Weather(Consumer):
             return
 
         for column in self.keys:
-            if weather['city'] == 'montreal':
+            if weather['city'] == config.MONTREAL_NAME:
                 self.weather_montreal[column].extend(weather[column])
-            elif weather['city'] == 'toronto':
+            elif weather['city'] == config.TORONTO_NAME:
                 self.weather_toronto[column].extend(weather[column])
             else:
                 self.weather_washington[column].extend(weather[column])
