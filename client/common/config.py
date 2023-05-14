@@ -10,6 +10,7 @@ def declare_config(config_params):
     global TRIPS_FILE_LIST
     global END_STATIONS_MESSAGE
     global END_WEATHER_MESSAGE
+    global OK_MESSAGE
     ERROR_MESSAGE = json.loads(config_params["error_message"])
     EOF = json.loads(config_params["eof"])
     PREDATA_BATCH_SIZE = int(config_params["predata_batch_size"])
@@ -19,3 +20,4 @@ def declare_config(config_params):
     TRIPS_FILE_LIST = json.loads(config_params["trips_file_list"])
     END_STATIONS_MESSAGE = json.loads(config_params["end_stations_message"])
     END_WEATHER_MESSAGE = json.loads(config_params["end_weather_message"])
+    OK_MESSAGE = json.loads(config_params["ok_message"])

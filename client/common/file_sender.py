@@ -1,5 +1,6 @@
 from common.csv_parser import CsvParser
 from middleware.protocol import send_string, read_string
+import common.config as config
 
 def get_metadata(file):
     data = file.split("/")
@@ -16,8 +17,8 @@ def file_sender(skt, file, batch):
             send_string(skt, line)
             msg = read_string(skt)
         except:
-            return "error"
-        if msg == "error":
-            return "error"
+            return config.ERROR_MESSAGE
+        if msg == config.ERROR_MESSAGE:
+            return config.ERROR_MESSAGE
         line = csv.get_line_json()
     return None

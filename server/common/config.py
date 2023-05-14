@@ -28,6 +28,10 @@ def declare_config(config_params):
     global END_STATIONS_MESSAGE
     global END_WEATHER_MESSAGE
     global WORKERS_COUNT
+    global END_OF_FILE
+    global END_STATIONS_MESSAGE
+    global END_WEATHER_MESSAGE
+    global OK_MESSAGE
     WEATHER_COLUMNS = json.loads(config_params["weather_columns"])
     STATIONS_COLUMNS = json.loads(config_params["stations_columns"])
     TRIPS_COLUMNS = json.loads(config_params["trips_columns"])
@@ -55,3 +59,7 @@ def declare_config(config_params):
     END_STATIONS_MESSAGE = json.loads(config_params["end_stations_message"])
     END_WEATHER_MESSAGE = json.loads(config_params["end_weather_message"])
     WORKERS_COUNT = int(config_params["weather_workers_count"]) + int(config_params["stations_workers_count"])
+    END_OF_FILE = json.loads(config_params["eof"])
+    END_STATIONS_MESSAGE = json.loads(config_params["end_stations_message"])
+    END_WEATHER_MESSAGE = json.loads(config_params["end_weather_message"])
+    OK_MESSAGE = json.loads(config_params["ok_message"])

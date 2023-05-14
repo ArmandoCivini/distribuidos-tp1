@@ -60,6 +60,10 @@ def initialize_config():
         config_params["finished_message"] = os.getenv('FINISHED_MESSAGE', config["DEFAULT"]["FINISHED_MESSAGE"])
         config_params["end_stations_message"] = os.getenv('END_STATIONS_MESSAGE', config["DEFAULT"]["END_STATIONS_MESSAGE"])
         config_params["end_weather_message"] = os.getenv('END_WEATHER_MESSAGE', config["DEFAULT"]["END_WEATHER_MESSAGE"])
+        config_params["eof"] = os.getenv('END_OF_FILE', config["DEFAULT"]["END_OF_FILE"])
+        config_params["end_stations_message"] = os.getenv('END_STATIONS_MESSAGE', config["DEFAULT"]["END_STATIONS_MESSAGE"])
+        config_params["end_weather_message"] = os.getenv('END_WEATHER_MESSAGE', config["DEFAULT"]["END_WEATHER_MESSAGE"])
+        config_params["ok_message"] = os.getenv('OK_MESSAGE', config["DEFAULT"]["OK_MESSAGE"])
         config_params["weather_workers_count"] = os.getenv('WEATHER_WORKERS_COUNT', config["DEFAULT"]["WEATHER_WORKERS_COUNT"])
         config_params["stations_workers_count"] = os.getenv('STATIONS_WORKERS_COUNT', config["DEFAULT"]["STATIONS_WORKERS_COUNT"])
     except KeyError as e:

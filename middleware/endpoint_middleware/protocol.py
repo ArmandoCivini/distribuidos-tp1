@@ -1,5 +1,6 @@
 import json
 import logging
+import common.config as config
 
 def long_read(skt, n):
     #avoids short read
@@ -32,17 +33,17 @@ def send_string(skt, string):
 
 def read_json(skt):
     msg = read_string(skt)
-    if msg == "eof":
+    if msg == config.END_OF_FILE:
         logging.info(f"client finished")
-        return None, "finished"
-    if msg == "end of stations":
+        return None, config.FINISHED_MESSAGE
+    if msg == config.END_STATIONS_MESSAGE:
         logging.info(f"client finished sending stations")
-        return None, "end of stations"
-    if msg == "end of weather":
+        return None, config.END_STATIONS_MESSAGE
+    if msg == config.END_WEATHER_MESSAGE:
         logging.info(f"client finished sending weather")
-        return None, "end of weather"
-    if msg == "error":
+        return None, config.END_WEATHER_MESSAGE
+    if msg == config.ERROR_MESSAGE:
         logging.error(f"client error")
-        return None, "error"
-    send_string(skt, "ok")
+        return None, config.ERROR_MESSAGE
+    send_string(skt, config.OK_MESSAGE)
     return json.loads(msg), None
