@@ -66,6 +66,7 @@ def initialize_config():
         config_params["ok_message"] = os.getenv('OK_MESSAGE', config["DEFAULT"]["OK_MESSAGE"])
         config_params["weather_workers_count"] = os.getenv('WEATHER_WORKERS_COUNT', config["DEFAULT"]["WEATHER_WORKERS_COUNT"])
         config_params["stations_workers_count"] = os.getenv('STATIONS_WORKERS_COUNT', config["DEFAULT"]["STATIONS_WORKERS_COUNT"])
+        config_params["rabbit_host"] = os.getenv('RABBIT_HOST', config["DEFAULT"]["RABBIT_HOST"])
     except KeyError as e:
         raise KeyError("Key was not found. Error: {} .Aborting server".format(e))
     except ValueError as e:

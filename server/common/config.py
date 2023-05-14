@@ -32,6 +32,7 @@ def declare_config(config_params):
     global END_STATIONS_MESSAGE
     global END_WEATHER_MESSAGE
     global OK_MESSAGE
+    global RABBIT_HOST
     WEATHER_COLUMNS = json.loads(config_params["weather_columns"])
     STATIONS_COLUMNS = json.loads(config_params["stations_columns"])
     TRIPS_COLUMNS = json.loads(config_params["trips_columns"])
@@ -63,3 +64,4 @@ def declare_config(config_params):
     END_STATIONS_MESSAGE = json.loads(config_params["end_stations_message"])
     END_WEATHER_MESSAGE = json.loads(config_params["end_weather_message"])
     OK_MESSAGE = json.loads(config_params["ok_message"])
+    RABBIT_HOST = json.loads(config_params["rabbit_host"])

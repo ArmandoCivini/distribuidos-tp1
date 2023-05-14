@@ -1,7 +1,8 @@
 import pika
+import common.config as config
 
 def init_connection(exchanges):
-    connection = pika.BlockingConnection(pika.ConnectionParameters(host='rabbitmq'))
+    connection = pika.BlockingConnection(pika.ConnectionParameters(host=config.RABBIT_HOST))
     channel = connection.channel()
     for exchange in exchanges:
         channel.exchange_declare(exchange=exchange, exchange_type='fanout', auto_delete=False)
