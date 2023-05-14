@@ -1,9 +1,10 @@
 from haversine import haversine
+import common.config as config
 
 def merge_trip_stations(city, start_station_code, stations_montreal, stations_toronto, stations_washington):
-    if city == 'montreal':
+    if city == config.MONTREAL_NAME:
         indx = stations_montreal['code'].index(start_station_code)
-    elif city == 'toronto':
+    elif city == config.TORONTO_NAME:
         indx = stations_toronto['code'].index(start_station_code)
     else:
         indx = stations_washington['code'].index(start_station_code)
@@ -29,10 +30,10 @@ def process_montreal(trip, stations, start_indx, curr_results):
 def process_year(trip, stations, indx, curr_results):
     year = trip['start_date'].split('-')[0]
     year_count = curr_results['year_count']
-    if year=='2016' or year=='2017':
+    if year==config.YEAR1 or year==config.YEAR2:
         station = stations['name'][indx]
         if station not in year_count:
-            year_count[station] = {'2016': 0, '2017': 0}
+            year_count[station] = {config.YEAR1: 0, config.YEAR2: 0}
         year_count[station][year] += 1
     curr_results['year_count'] = year_count
     return curr_results
@@ -41,10 +42,10 @@ def process_trips_stations(trip, stations, curr_results):
     stations_montreal, stations_toronto, stations_washington = stations[0], stations[1], stations[2]
     city = trip['city']
     indx = merge_trip_stations(city, trip['start_station_code'], stations_montreal, stations_toronto, stations_washington)
-    if city == 'montreal':
+    if city == config.MONTREAL_NAME:
         curr_results = process_montreal(trip, stations_montreal, indx, curr_results)
         curr_results = process_year(trip, stations_montreal, indx, curr_results)
-    elif city == 'toronto':
+    elif city == config.TORONTO_NAME:
         curr_results = process_year(trip, stations_toronto, indx, curr_results)
     else:
         curr_results = process_year(trip, stations_washington, indx, curr_results)

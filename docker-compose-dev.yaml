@@ -38,7 +38,9 @@ services:
       - PYTHONUNBUFFERED=1
       - WORKER_ID=1
       - LOGGING_LEVEL=INFO
-
+    volumes:
+      - ./middleware/middleware_config.ini:/middleware_config.ini
+      
   worker_stations2:
     container_name: worker_stations2
     image: station_worker:latest
@@ -49,6 +51,8 @@ services:
       - PYTHONUNBUFFERED=1
       - WORKER_ID=2
       - LOGGING_LEVEL=INFO
+    volumes:
+      - ./middleware/middleware_config.ini:/middleware_config.ini
 
   worker_weather1:
     container_name: worker_weather1
@@ -60,6 +64,8 @@ services:
       - PYTHONUNBUFFERED=1
       - WORKER_ID=3
       - LOGGING_LEVEL=INFO
+    volumes:
+      - ./middleware/middleware_config.ini:/middleware_config.ini
 
   worker_weather2:
     container_name: worker_weather2
@@ -71,6 +77,9 @@ services:
       - PYTHONUNBUFFERED=1
       - WORKER_ID=4
       - LOGGING_LEVEL=INFO
+    volumes:
+      - ./middleware/middleware_config.ini:/middleware_config.ini
+
 
   client:
     container_name: client
