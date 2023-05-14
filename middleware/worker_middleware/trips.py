@@ -2,6 +2,7 @@ import pika
 import logging
 import json
 import random
+import common.config as config
 
 def split_trips(trips):
     city = trips.pop("city")
@@ -18,15 +19,14 @@ class Trips:
     def __init__(self, trips_queue, process_callback, result):
         self.process_callback = process_callback
         self.result = result
-        #TODO: add to configuration
-        self.trips_exchange = 'trips_exchange'
+        self.trips_exchange = config.TRIPS_EXCHANGE
         self.trips_queue = trips_queue
-        self.notif_exchange = 'notif_exchange'
-        self.notif_queue = ''
+        self.notif_exchange = config.NOTIF_EXCHANGE
+        self.notif_queue = config.NOTIF_QUEUE
         self.trip_count = 0
         self.finished = False
         self.connection = pika.SelectConnection(
-    pika.ConnectionParameters(host='rabbitmq'), on_open_callback=self.on_open)
+    pika.ConnectionParameters(host=config.RABBIT_HOST), on_open_callback=self.on_open)
         
     def on_open(self, connection):
         connection.channel(on_open_callback=self.on_channel_open)
@@ -66,14 +66,13 @@ class Trips:
             return
         logging.info(f'finished consuming trips')
         self.connection.close()
-        logging.info(f'MARCELO: {self.trip_count}') #TODO: remove
+        logging.info(f'trip count: {self.trip_count}') #TODO: remove
         return self.result
 
     def callback_notif(self, ch, method, properties, body):
-        if body.decode("utf-8")  == 'end trips':
+        if body.decode("utf-8")  == config.END_TRIPS_MESSAGE:
             logging.info('received end for trips')
             self.finished = True
-            # self.connection.ioloop.stop()
         else:
             logging.info("Received notif {}".format(body))
         self.check_end()

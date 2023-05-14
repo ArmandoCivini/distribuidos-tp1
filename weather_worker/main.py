@@ -31,9 +31,16 @@ def initialize_config():
         config_params["toronto_name"] = os.getenv('TORONTO_NAME', config["DEFAULT"]["TORONTO_NAME"])
         config_params["weather_exchange"] = os.getenv('WEATHER_EXCHANGE', config["DEFAULT"]["WEATHER_EXCHANGE"])
         config_params["weather_queue"] = os.getenv('WEATHER_QUEUE', config["DEFAULT"]["WEATHER_QUEUE"])
+        config_params["notif_exchange"] = os.getenv('NOTIF_EXCHANGE', config["DEFAULT"]["NOTIF_EXCHANGE"])
+        config_params["trips_exchange"] = os.getenv('TRIPS_EXCHANGE', config["DEFAULT"]["TRIPS_EXCHANGE"])
+        config_params["sync_queue"] = os.getenv('SYNC_QUEUE', config["DEFAULT"]["SYNC_QUEUE"])
+        config_params["notif_queue"] = os.getenv('NOTIF_QUEUE', config["DEFAULT"]["NOTIF_QUEUE"])
+        config_params["end_trips_message"] = os.getenv('END_TRIPS_MESSAGE', config["DEFAULT"]["END_TRIPS_MESSAGE"])
+        config_params["finished_message"] = os.getenv('FINISHED_MESSAGE', config["DEFAULT"]["FINISHED_MESSAGE"])
         config_params["end_message"] = os.getenv('END_MESSAGE', config["DEFAULT"]["END_MESSAGE"])
         config_params["trips_weather_queue"] = json.loads(os.getenv('TRIPS_WEATHER_QUEUE', config["DEFAULT"]["TRIPS_WEATHER_QUEUE"]))
         config_params["weather_result_queue"] = json.loads(os.getenv('WEATHER_RESULT_QUEUE', config["DEFAULT"]["WEATHER_RESULT_QUEUE"]))
+        config_params["rabbit_host"] = os.getenv('RABBIT_HOST', config["DEFAULT"]["RABBIT_HOST"])
     except KeyError as e:
         raise KeyError("Key was not found. Error: {} .Aborting server".format(e))
     except ValueError as e:
