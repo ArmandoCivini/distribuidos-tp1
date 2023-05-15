@@ -66,7 +66,7 @@ def main():
 
     reducer = ResultReducer()
     results, status = reducer.reduce()
-    logging.info(f'reducer results queso: {results}')
+    logging.info(f'reducer results: {results}')
     if status == 'success':
         send_results(results, combined_results_queue)
     else:

@@ -19,7 +19,7 @@ class Worker:
         send_message(config.FINISHED_MESSAGE, self.sync_queue)
         result = self.trips.trips(work_result)
         logging.info('result: {}'.format(result))
-        send_results(result, self.result_queue)#TODO: add to configuration
+        send_results(result, self.result_queue)
 
     def graceful_shutdown(self):
         try:

@@ -1,8 +1,8 @@
-import pika
 import logging
 import json
 import random
 import common.config as config
+from common_middleware.async_connection import init_rabbit, init_queue
 
 def split_trips(trips):
     city = trips.pop("city")
@@ -25,36 +25,14 @@ class Trips:
         self.notif_queue = config.NOTIF_QUEUE
         self.trip_count = 0
         self.finished = False
-        self.connection = pika.SelectConnection(
-    pika.ConnectionParameters(host=config.RABBIT_HOST), on_open_callback=self.on_open)
-        
-    def on_open(self, connection):
-        connection.channel(on_open_callback=self.on_channel_open)
+        self.connection = init_rabbit(self.on_channel_open)
 
     def on_channel_open(self, channel):
         self.channel = channel
         channel.basic_qos(prefetch_count=1)
-
-        channel.exchange_declare(callback=self.on_exchange_declareok_trips, exchange=self.trips_exchange, exchange_type='fanout')
-        channel.exchange_declare(callback=self.on_exchange_declareok_notif, exchange=self.notif_exchange, exchange_type='fanout')
-
-    def on_exchange_declareok_notif(self, frame):
-        self.channel.queue_declare(self.notif_queue, callback=self.on_queue_declareok_notif)
-    
-    def on_exchange_declareok_trips(self, frame):
-        self.channel.queue_declare(self.trips_queue, callback=self.on_queue_declareok_trips, durable=True)
-
-    def on_queue_declareok_notif(self, frame):
-        self.channel.queue_bind(self.notif_queue, self.notif_exchange, callback=self.on_bindok_notif)
-
-    def on_queue_declareok_trips(self, frame):
-        self.channel.queue_bind(self.trips_queue, self.trips_exchange, callback=self.on_bindok_trips)
-
-    def on_bindok_notif(self, frame):
-        self.channel.basic_consume(queue=self.notif_queue, on_message_callback=self.callback_notif)
-
-    def on_bindok_trips(self, frame):
-        self.channel.basic_consume(queue=self.trips_queue, on_message_callback=self.callback_trips)
+        
+        init_queue(channel, self.trips_queue, self.trips_exchange, self.callback_trips)
+        init_queue(channel, self.notif_queue, self.notif_exchange, self.callback_notif)
 
     def trips(self, data):
         self.data = data
@@ -66,7 +44,7 @@ class Trips:
             return
         logging.info(f'finished consuming trips')
         self.connection.close()
-        logging.info(f'trip count: {self.trip_count}') #TODO: remove
+        logging.info(f'trip count: {self.trip_count}')
         return self.result
 
     def callback_notif(self, ch, method, properties, body):
@@ -83,7 +61,6 @@ class Trips:
             result = self.process_callback(trip, self.data, self.result)
             self.result = result
         except Exception as e:
-            # logging.error("failed to process trip: %s", e)
             return
         
     def callback_trips(self, ch, method, properties, body):
